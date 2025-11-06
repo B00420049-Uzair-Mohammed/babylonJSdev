@@ -1,5 +1,7 @@
 //import "@babylonjs/core/Debug/debugLayer";
 //import "@babylonjs/inspector";
+
+//top - importing modules at the top
 import {
     Scene,
     ArcRotateCamera,
@@ -45,6 +47,7 @@ import {
     return ground;
   }
   
+  //middle - functions in the middle
   function createArcRotateCamera(scene: Scene) {
     let camAlpha = -Math.PI / 2,
       camBeta = Math.PI / 2.5,
@@ -62,6 +65,7 @@ import {
     return camera;
   }
   
+  //bottom - drawing at the bottom
    export default function createStartScene(engine: Engine) {
     interface SceneData {
       scene: Scene;
