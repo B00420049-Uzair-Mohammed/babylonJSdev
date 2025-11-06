@@ -35,3 +35,25 @@ export function createxSlide(frameRate: number){
     return xSlide
 }
 
+export function createySlide(frameRate: number){
+    const ySlide = new Animation(
+        "ySlide",
+        "position.y",
+        frameRate,
+        Animation.ANIMATIONTYPE_FLOAT,
+        Animation.ANIMATIONLOOPMODE_CYCLE
+    );
+
+    const keyFramesY: PositionArray[] = [];
+    keyFramesY.push({ frame: 0, value: 2 });
+    keyFramesY.push({ frame: frameRate / 2, value: 1 });
+    keyFramesY.push({ frame: frameRate, value: 2 });
+    keyFramesY.push({ frame: frameRate* 3 / 2, value: 4 });
+    keyFramesY.push({ frame: 2 * frameRate, value: 2 });
+
+    ySlide.setKeys(keyFramesY);
+
+    return ySlide
+}
+
+
