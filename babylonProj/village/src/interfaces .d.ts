@@ -6,20 +6,9 @@ import {
 } from "@babylonjs/core";
 
 export interface SceneData {
-  scene: Scene,
-  ground: Mesh,
-  sphere: Mesh,
-  box: Mesh,
-  cylinder: Mesh,
-  cone: Mesh,
-  triangle: Mesh,
-  capsule: Mesh,
-  torus: Mesh,
-  plane: Mesh,
-  tube: Mesh,
-  extrusion: Mesh,
-  octahedron: Mesh,
-  plane2: Mesh,
-  lightHemispheric: HemisphericLight,
-  camera: Camera
+  scene: Scene;
+  ground: Mesh;
+  sky: Mesh;
+  lightHemispheric: HemisphericLight;
+  camera: Camera;
 }
