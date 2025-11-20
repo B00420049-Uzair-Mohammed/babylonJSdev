@@ -11,7 +11,7 @@
     "lighting01preview": "vite preview lighting01 --host",
         "motion03build": "tsc && vite build motion03",
     "motion03preview": "vite preview motion03 --host",
-    "collision03build": "vite build collision03",
+        "collision03build": "tsc && vite build collision03",
     "collision03preview": "vite preview collision03 --host"
 
   },
