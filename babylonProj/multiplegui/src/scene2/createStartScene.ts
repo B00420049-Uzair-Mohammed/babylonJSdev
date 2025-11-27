@@ -27,7 +27,7 @@ import {
     cylinder.position.z = 1;
   
     var texture = new StandardMaterial("reflective", scene);
-    texture.ambientTexture = new Texture("./assets/wood.jpg", scene);
+    texture.ambientTexture = new Texture("./assets/textures/wood.jpg", scene);
     texture.diffuseColor = new Color3(1, 1, 1);
     cylinder.material = texture;
     return cylinder;
