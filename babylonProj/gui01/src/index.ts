@@ -3,7 +3,7 @@ import createStartScene from "./createStartScene";
 import createRunScene from "./createRunScene";
 import createGUIScene from "./createGUI";
 import "./main.css";
-import { SceneData } from "./interfaces";
+import { SceneData } from "./interfaces ";
 
 const CanvasName = "renderCanvas";
 
