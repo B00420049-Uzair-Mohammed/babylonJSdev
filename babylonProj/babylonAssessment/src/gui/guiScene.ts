@@ -6,6 +6,7 @@ import {
   MeshBuilder,
   Texture,
   BackgroundMaterial,
+  Sound,
 } from "@babylonjs/core";
 
 import {
@@ -16,20 +17,26 @@ import {
   TextBlock,
 } from "@babylonjs/gui";
 
-export default function createMainMenuScene(engine: Engine) {
+export default function createMainMenuScene(engine: Engine, setSceneIndex: (i: number) => void) {
   const scene = new Scene(engine);
 
-  // 🌄 Background plane using skybox_nx.jpg
+  // 🌄 Background plane
   const backgroundPlane = MeshBuilder.CreatePlane("backgroundPlane", { width: 16, height: 9 }, scene);
   backgroundPlane.position.z = 5;
 
   const backgroundMaterial = new BackgroundMaterial("backgroundMaterial", scene);
-  backgroundMaterial.diffuseTexture = new Texture("assets/skybox_nx.jpg", scene); // <-- Your image path
+  backgroundMaterial.diffuseTexture = new Texture("assets/skybox_nx.jpg", scene);
   backgroundMaterial.opacityFresnel = false;
   backgroundPlane.material = backgroundMaterial;
 
   // ☀️ Light
   new HemisphericLight("light", new Vector3(0, 1, 0), scene);
+
+  // 🎵 Load audio
+  const music = new Sound("arcadeMusic", "assets/audio/arcade-kid.mp3", scene, null, {
+    loop: true,
+    autoplay: false,
+  });
 
   // 🖥️ GUI setup
   const guiTexture = AdvancedDynamicTexture.CreateFullscreenUI("UI", true, scene);
@@ -58,7 +65,6 @@ export default function createMainMenuScene(engine: Engine) {
     button.fontSize = "24px";
     button.thickness = 2;
 
-    // Hover effect
     button.onPointerEnterObservable.add(() => {
       button.background = "#2ecc71";
     });
@@ -70,17 +76,31 @@ export default function createMainMenuScene(engine: Engine) {
     return button;
   }
 
-  const startButton = createMenuButton("Start Game", () => {
-    console.log("Start Game clicked");
-  });
+  // 🎮 Scene navigation buttons
+  panel.addControl(createMenuButton("Go to Scene 1", () => setSceneIndex(0)));
+  panel.addControl(createMenuButton("Go to Scene 2", () => setSceneIndex(1)));
+  panel.addControl(createMenuButton("Go to Scene 3", () => setSceneIndex(2)));
+  panel.addControl(createMenuButton("Go to Scene 4", () => setSceneIndex(3)));
 
-  const optionsButton = createMenuButton("Options", () => {
-    console.log("Options clicked");
-  });
+  // 🔙 Back to Menu button
+  panel.addControl(createMenuButton("Back to Menu", () => setSceneIndex(-1)));
 
-  panel.addControl(startButton);
-  panel.addControl(optionsButton);
+  // 🔊 Audio Toggle Button
+  let audioEnabled = false;
+  const audioButton = createMenuButton("Enable Audio", () => {
+    if (audioEnabled) {
+      music.pause();
+      audioButton.textBlock!.text = "Enable Audio";
+      audioButton.background = "transparent";
+      audioEnabled = false;
+    } else {
+      music.play();
+      audioButton.textBlock!.text = "Disable Audio";
+      audioButton.background = "#e74c3c";
+      audioEnabled = true;
+    }
+  });
+  panel.addControl(audioButton);
 
   return scene;
 }
-

@@ -1,3 +1,5 @@
+// import "@babylonjs/core/Debug/debugLayer";
+// import "@babylonjs/inspector";
 import {
   Engine,
   Scene,

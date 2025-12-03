@@ -1,3 +1,5 @@
+// import "@babylonjs/core/Debug/debugLayer";
+// import "@babylonjs/inspector";
 import {
   Scene,
   ArcRotateCamera,
@@ -13,6 +15,7 @@ import {
   Color3,
   CubeTexture,
   AbstractMesh,
+  KeyboardEventTypes,
 } from "@babylonjs/core";
 import { SceneLoader } from "@babylonjs/core/Loading/sceneLoader";
 import "@babylonjs/loaders"; // Required for .babylon file loading
@@ -90,7 +93,7 @@ function createArcRotateCamera(scene: Scene) {
   return camera;
 }
 
-function loadDummy(scene: Scene): void {
+function loadDummy(scene: Scene, onReady: (dummy: AbstractMesh) => void): void {
   SceneLoader.ImportMesh(
     "",
     "./assets/models/men/",
@@ -100,6 +103,7 @@ function loadDummy(scene: Scene): void {
       const dummy = meshes[0];
       dummy.position = new Vector3(0, 0, 0);
       dummy.scaling = new Vector3(1, 1, 1);
+      onReady(dummy);
     }
   );
 }
@@ -122,7 +126,27 @@ export default function createStartScene(engine: Engine) {
   that.sky = createSky(that.scene);
   that.light = createLight(that.scene);
   that.camera = createArcRotateCamera(that.scene);
-  loadDummy(that.scene);
+
+  // 🎮 Player Controls
+  const inputMap: { [key: string]: boolean } = {};
+  that.scene.onKeyboardObservable.add((kbInfo) => {
+    const key = kbInfo.event.key.toLowerCase();
+    inputMap[key] = kbInfo.type === KeyboardEventTypes.KEYDOWN;
+    if (kbInfo.type === KeyboardEventTypes.KEYUP) inputMap[key] = false;
+  });
+
+  loadDummy(that.scene, (dummy) => {
+    that.dummy = dummy;
+    const speed = 0.2;
+
+    that.scene.onBeforeRenderObservable.add(() => {
+      if (!that.dummy) return;
+      if (inputMap["w"]) that.dummy.position.z += speed;
+      if (inputMap["s"]) that.dummy.position.z -= speed;
+      if (inputMap["a"]) that.dummy.position.x -= speed;
+      if (inputMap["d"]) that.dummy.position.x += speed;
+    });
+  });
 
   return that;
 }
