@@ -16,22 +16,22 @@ import {
 export default function createPickupScene(engine: Engine) {
   const scene = new Scene(engine);
 
-  // 🌍 Environment
+  // Environment
   new HemisphericLight("light", new Vector3(0, 1, 0), scene);
   MeshBuilder.CreateGround("ground", { width: 20, height: 20 }, scene);
 
-  // 🧍 Dummy
+  // Dummy
   const dummy = MeshBuilder.CreateCapsule("dummy", { height: 2, radius: 0.5 }, scene);
   dummy.position.y = 1;
 
-  // 🎥 Camera
+  // Camera
   const camera = new ArcRotateCamera("cam", -Math.PI / 2, Math.PI / 3, 6, dummy.position, scene);
   camera.attachControl(true);
   scene.onBeforeRenderObservable.add(() => {
     camera.target = dummy.position.clone();
   });
 
-  // 🎮 Movement
+  // Movement
   const inputMap: { [key: string]: boolean } = {};
   scene.onKeyboardObservable.add((kbInfo) => {
     const key = kbInfo.event.key.toLowerCase();
@@ -46,7 +46,7 @@ export default function createPickupScene(engine: Engine) {
     if (inputMap["d"]) dummy.position.x += speed;
   });
 
-  // 🎁 Create Pickups
+  // Create Pickups
   const pickups: Mesh[] = [];
   const pickupMaterial = new StandardMaterial("pickupMat", scene);
   pickupMaterial.diffuseColor = Color3.Yellow();
@@ -62,7 +62,7 @@ export default function createPickupScene(engine: Engine) {
     pickups.push(item);
   }
 
-  // 🧲 Pickup Detection
+  // Pickup Detection
   scene.onBeforeRenderObservable.add(() => {
     pickups.forEach((item, index) => {
       if (!item.isDisposed() && dummy.intersectsMesh(item, false)) {

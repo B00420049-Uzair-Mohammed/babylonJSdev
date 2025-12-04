@@ -127,7 +127,7 @@ export default function createStartScene(engine: Engine) {
   that.light = createLight(that.scene);
   that.camera = createArcRotateCamera(that.scene);
 
-  // 🎮 Player Controls
+  // Player Controls
   const inputMap: { [key: string]: boolean } = {};
   that.scene.onKeyboardObservable.add((kbInfo) => {
     const key = kbInfo.event.key.toLowerCase();

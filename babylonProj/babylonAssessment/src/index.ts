@@ -8,16 +8,16 @@ import "./main.css";
 
 const CanvasName = "renderCanvas";
 
-// 🎨 Create canvas
+// Create canvas
 let canvas = document.createElement("canvas");
 canvas.id = CanvasName;
 canvas.classList.add("background-canvas");
 document.body.appendChild(canvas);
 
-// 🔧 Engine
+// Engine
 let eng = new Engine(canvas, true, {}, true);
 
-// 📂 Scenes array
+// Scenes array
 // -1 will represent the menu scene
 let scenes: any = {};
 scenes[-1] = createMainMenuScene(eng, setSceneIndex); // pass setSceneIndex into menu
@@ -26,7 +26,7 @@ scenes[1] = createScene2(eng);
 scenes[2] = createScene3(eng);
 scenes[3] = createScene4(eng);
 
-// ▶️ Start at menu
+// Start at menu
 setSceneIndex(-1);
 
 export default function setSceneIndex(i: number) {

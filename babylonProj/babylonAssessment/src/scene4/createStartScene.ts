@@ -17,7 +17,7 @@ import {
 export default function createStartScene4(engine: Engine) {
   const scene = new Scene(engine);
 
-  // 🎥 Camera
+  // Camera
   const camera = new ArcRotateCamera(
     "camera4",
     -Math.PI / 2,
@@ -28,19 +28,19 @@ export default function createStartScene4(engine: Engine) {
   );
   camera.attachControl(true);
 
-  // ☀️ Lighting
+  // Lighting
   const hemiLight = new HemisphericLight("hemiLight", new Vector3(0, 1, 0), scene);
   hemiLight.intensity = 0.5;
 
   const dirLight = new DirectionalLight("dirLight", new Vector3(-1, -2, -1), scene);
   dirLight.position = new Vector3(10, 10, 10);
 
-  // 🔦 Shadows
+  // Shadows
   const shadowGenerator = new ShadowGenerator(1024, dirLight);
   shadowGenerator.useBlurExponentialShadowMap = true;
   shadowGenerator.blurKernel = 32;
 
-  // 🟦 Box
+  // Box
   const box = MeshBuilder.CreateBox("box", { size: 2 }, scene);
   box.position = new Vector3(-3, 1, 0);
   const boxMat = new StandardMaterial("boxMat", scene);
@@ -48,7 +48,7 @@ export default function createStartScene4(engine: Engine) {
   box.material = boxMat;
   shadowGenerator.addShadowCaster(box);
 
-  // ⚽ Sphere
+  // Sphere
   const sphere = MeshBuilder.CreateSphere("sphere", { diameter: 2 }, scene);
   sphere.position = new Vector3(3, 1, 0);
   const sphereMat = new StandardMaterial("sphereMat", scene);
@@ -56,14 +56,14 @@ export default function createStartScene4(engine: Engine) {
   sphere.material = sphereMat;
   shadowGenerator.addShadowCaster(sphere);
 
-  // 🟨 Ground
+  // Ground
   const ground = MeshBuilder.CreateGround("ground", { width: 20, height: 20 }, scene);
   const groundMat = new StandardMaterial("groundMat", scene);
   groundMat.diffuseColor = new Color3(0.8, 0.8, 0.8); // light grey
   ground.material = groundMat;
   ground.receiveShadows = true;
 
-  // 🟩 Cylinder
+  // Cylinder
   const cylinder = MeshBuilder.CreateCylinder("cylinder", { diameter: 1.5, height: 3 }, scene);
   cylinder.position = new Vector3(0, 1.5, 3);
   const cylMat = new StandardMaterial("cylMat", scene);

@@ -26,10 +26,10 @@ import {
 export default async function createStartScene3(engine: Engine) {
   const scene = new Scene(engine);
 
-  // ☀️ Light
+  // Light
   new HemisphericLight("light", new Vector3(0, 1, 0), scene);
 
-  // 🎥 Camera
+  // Camera
   const camera = new ArcRotateCamera(
     "camera",
     -Math.PI / 2,
@@ -40,12 +40,12 @@ export default async function createStartScene3(engine: Engine) {
   );
   camera.attachControl(true);
 
-  // ⚙️ Enable Havok physics
+  // Enable Havok physics
   const havokInstance = await HavokPhysics();
   const havokPlugin = new HavokPlugin(true, havokInstance);
   scene.enablePhysics(new Vector3(0, -9.81, 0), havokPlugin);
 
-  // 🧍 Player Dummy
+  // Player Dummy
   let player: Mesh;
   SceneLoader.ImportMesh("", "./assets/models/men/", "dummy3.babylon", scene, (meshes) => {
     player = meshes[0] as Mesh;
@@ -53,7 +53,7 @@ export default async function createStartScene3(engine: Engine) {
     new PhysicsAggregate(player, PhysicsShapeType.CAPSULE, { mass: 1 }, scene);
   });
 
-  // 🎮 Player Movement
+  // Player Movement
   const inputMap: { [key: string]: boolean } = {};
   scene.onKeyboardObservable.add((kbInfo) => {
     const key = kbInfo.event.key.toLowerCase();
@@ -72,7 +72,7 @@ export default async function createStartScene3(engine: Engine) {
     if (inputMap["d"]) body.applyImpulse(new Vector3(moveForce, 0, 0), player.getAbsolutePosition());
   });
 
-  // 📦 Wooden Boxes
+  // Wooden Boxes
   function spawnBox() {
     const box = MeshBuilder.CreateBox("box", { size: 2 }, scene);
     const mat = new StandardMaterial("boxMat", scene);
@@ -82,7 +82,7 @@ export default async function createStartScene3(engine: Engine) {
     new PhysicsAggregate(box, PhysicsShapeType.BOX, { mass: 1 }, scene);
   }
 
-  // ⚽ Balls
+  // Balls
   function spawnBall() {
     const ball = MeshBuilder.CreateSphere("ball", { diameter: 1.5 }, scene);
     const mat = new StandardMaterial("ballMat", scene);
@@ -92,7 +92,7 @@ export default async function createStartScene3(engine: Engine) {
     new PhysicsAggregate(ball, PhysicsShapeType.SPHERE, { mass: 1 }, scene);
   }
 
-  // ⏱️ Spawning Loop
+  // Spawning Loop
   let frameCount = 0;
   scene.onBeforeRenderObservable.add(() => {
     frameCount++;
@@ -100,7 +100,7 @@ export default async function createStartScene3(engine: Engine) {
     if (frameCount % 180 === 0) spawnBall();
   });
 
-  // 🖥️ GUI Overlay
+  // GUI Overlay
   const gui = AdvancedDynamicTexture.CreateFullscreenUI("UI", true, scene);
 
   const restartButton = Button.CreateSimpleButton("restart", "Restart");
@@ -124,7 +124,7 @@ export default async function createStartScene3(engine: Engine) {
 
   gui.addControl(restartButton);
 
-  // 🧩 Collision Detection (Game Over)
+  // Collision Detection (Game Over)
   scene.onBeforeRenderObservable.add(() => {
     scene.meshes.forEach((m) => {
       if ((m.name === "box" || m.name === "ball") && player && player.intersectsMesh(m, false)) {

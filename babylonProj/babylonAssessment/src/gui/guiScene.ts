@@ -20,7 +20,7 @@ import {
 export default function createMainMenuScene(engine: Engine, setSceneIndex: (i: number) => void) {
   const scene = new Scene(engine);
 
-  // 🌄 Background plane
+  // Background plane
   const backgroundPlane = MeshBuilder.CreatePlane("backgroundPlane", { width: 16, height: 9 }, scene);
   backgroundPlane.position.z = 5;
 
@@ -29,16 +29,16 @@ export default function createMainMenuScene(engine: Engine, setSceneIndex: (i: n
   backgroundMaterial.opacityFresnel = false;
   backgroundPlane.material = backgroundMaterial;
 
-  // ☀️ Light
+  // Light
   new HemisphericLight("light", new Vector3(0, 1, 0), scene);
 
-  // 🎵 Load audio
+  // Load audio
   const music = new Sound("arcadeMusic", "assets/audio/arcade-kid.mp3", scene, null, {
     loop: true,
     autoplay: false,
   });
 
-  // 🖥️ GUI setup
+  // GUI setup
   const guiTexture = AdvancedDynamicTexture.CreateFullscreenUI("UI", true, scene);
 
   const title = new TextBlock();
@@ -76,16 +76,16 @@ export default function createMainMenuScene(engine: Engine, setSceneIndex: (i: n
     return button;
   }
 
-  // 🎮 Scene navigation buttons
+  // Scene navigation buttons
   panel.addControl(createMenuButton("Go to Scene 1", () => setSceneIndex(0)));
   panel.addControl(createMenuButton("Go to Scene 2", () => setSceneIndex(1)));
   panel.addControl(createMenuButton("Go to Scene 3", () => setSceneIndex(2)));
   panel.addControl(createMenuButton("Go to Scene 4", () => setSceneIndex(3)));
 
-  // 🔙 Back to Menu button
+  // Back to Menu button
   panel.addControl(createMenuButton("Back to Menu", () => setSceneIndex(-1)));
 
-  // 🔊 Audio Toggle Button
+  // Audio Toggle Button
   let audioEnabled = false;
   const audioButton = createMenuButton("Enable Audio", () => {
     if (audioEnabled) {
