@@ -7,6 +7,7 @@ import {
   Texture,
   BackgroundMaterial,
   Sound,
+  ArcRotateCamera,
 } from "@babylonjs/core";
 
 import {
@@ -16,6 +17,25 @@ import {
   StackPanel,
   TextBlock,
 } from "@babylonjs/gui";
+
+function createArcRotateCamera(scene: Scene) {
+  let camAlpha = -Math.PI / 2,
+    camBeta = Math.PI / 2.5,
+    camDist = 10,
+    camTarget = new Vector3(0, 0, 0);
+  let camera = new ArcRotateCamera(
+    "camera1",
+    camAlpha,
+    camBeta,
+    camDist,
+    camTarget,
+    scene,
+  );
+  camera.attachControl(false);
+  return; //camera;
+}
+
+
 
 export default function createMainMenuScene(engine: Engine, setSceneIndex: (i: number) => void) {
   const scene = new Scene(engine);
@@ -77,13 +97,13 @@ export default function createMainMenuScene(engine: Engine, setSceneIndex: (i: n
   }
 
   // Scene navigation buttons
-  panel.addControl(createMenuButton("Go to Scene 1", () => setSceneIndex(0)));
-  panel.addControl(createMenuButton("Go to Scene 2", () => setSceneIndex(1)));
-  panel.addControl(createMenuButton("Go to Scene 3", () => setSceneIndex(2)));
-  panel.addControl(createMenuButton("Go to Scene 4", () => setSceneIndex(3)));
+  panel.addControl(createMenuButton("Go to Scene 1", () => setSceneIndex(1)));
+  panel.addControl(createMenuButton("Go to Scene 2", () => setSceneIndex(2)));
+  panel.addControl(createMenuButton("Go to Scene 3", () => setSceneIndex(3)));
+  panel.addControl(createMenuButton("Go to Scene 4", () => setSceneIndex(4)));
 
   // Back to Menu button
-  panel.addControl(createMenuButton("Back to Menu", () => setSceneIndex(-1)));
+  panel.addControl(createMenuButton("Back to Menu", () => setSceneIndex(0)));
 
   // Audio Toggle Button
   let audioEnabled = false;
@@ -101,6 +121,9 @@ export default function createMainMenuScene(engine: Engine, setSceneIndex: (i: n
     }
   });
   panel.addControl(audioButton);
+
+ createArcRotateCamera(scene);
+
 
   return scene;
 }

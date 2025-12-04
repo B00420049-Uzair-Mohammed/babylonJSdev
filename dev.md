@@ -166,3 +166,12 @@ const restartButton = Button.CreateSimpleButton("restart", "Restart");
 
   gui.addControl(restartButton);
 ```
+
+## Sources
+
+- https://derekturner.github.io/Javascript-Games-Fund-25/#/
+- https://derekturner.github.io/Javascript-Games-Fund-25/#/Block_3/README
+- https://derekturner.github.io/Javascript-Games-Fund-25/#/Block_1/section_6/markdown?id=react-markdown
+- https://doc.babylonjs.com/ 
+- https://doc.babylonjs.com/preparingArtForBabylon/
+- https://doc.babylonjs.com/toolsAndResources/assetLibraries
