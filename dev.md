@@ -12,12 +12,12 @@ export default async function createStartScene3(engine: Engine) {
 ```
 - **HemisphericLight** provides ambient illumination.
 ```code
-// ☀️ Light
+// Light
   new HemisphericLight("light", new Vector3(0, 1, 0), scene);
 ```
 - **ArcRotateCamera** orbits around the origin and is user-controllable.
 ```code
-// 🎥 Camera
+// Camera
   const camera = new ArcRotateCamera(
     "camera",
     -Math.PI / 2,
@@ -33,7 +33,7 @@ export default async function createStartScene3(engine: Engine) {
 
 - Havok physics system engine has been initialized and enabled.
 ```code
- // ⚙️ Enable Havok physics
+ // Enable Havok physics
   const havokInstance = await HavokPhysics();
   const havokPlugin = new HavokPlugin(true, havokInstance);
   scene.enablePhysics(new Vector3(0, -9.81, 0), havokPlugin);
@@ -42,7 +42,7 @@ export default async function createStartScene3(engine: Engine) {
 - there is collision detection 
 - Once collision has occured, the game will end.
 ```code
-// 🧩 Collision Detection (Game Over)
+// Collision Detection (Game Over)
   scene.onBeforeRenderObservable.add(() => {
     scene.meshes.forEach((m) => {
       if ((m.name === "box" || m.name === "ball") && player && player.intersectsMesh(m, false)) {
@@ -57,7 +57,7 @@ export default async function createStartScene3(engine: Engine) {
 
 - Added a dummy character model ('dummy3.babylon'). 
 ```code
-// 🧍 Player Dummy
+// Player Dummy
   let player: Mesh;
   SceneLoader.ImportMesh("", "./assets/models/men/", "dummy3.babylon", scene, (meshes) => {
     player = meshes[0] as Mesh;
@@ -71,7 +71,7 @@ player.position = new Vector3(0, 1, 0);
 ```
 - The dummy is controlled via keyboard ('WASD'). 
 ```code
-// 🎮 Player Movement
+// Player Movement
   const inputMap: { [key: string]: boolean } = {};
   scene.onKeyboardObservable.add((kbInfo) => {
     const key = kbInfo.event.key.toLowerCase();
@@ -85,7 +85,7 @@ player.position = new Vector3(0, 1, 0);
 - **Boxes**: Wooden-colored cubes spawned periodically with physics bodies.
 - **Balls**: White spheres spawned periodically with physics bodies.
 ```code
-// 📦 Wooden Boxes
+// Wooden Boxes
   function spawnBox() {
     const box = MeshBuilder.CreateBox("box", { size: 2 }, scene);
     const mat = new StandardMaterial("boxMat", scene);
@@ -95,7 +95,7 @@ player.position = new Vector3(0, 1, 0);
     new PhysicsAggregate(box, PhysicsShapeType.BOX, { mass: 1 }, scene);
   }
 
-  // ⚽ Balls
+  // Balls
   function spawnBall() {
     const ball = MeshBuilder.CreateSphere("ball", { diameter: 1.5 }, scene);
     const mat = new StandardMaterial("ballMat", scene);
@@ -111,7 +111,7 @@ player.position = new Vector3(0, 1, 0);
 
 - GUI created using the Babylon GUI
 ```code
- // 🖥️ GUI Overlay
+ // GUI Overlay
   const gui = AdvancedDynamicTexture.CreateFullscreenUI("UI", true, scene);
 ```
 - A restart button has been added.
