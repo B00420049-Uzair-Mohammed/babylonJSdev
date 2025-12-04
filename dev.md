@@ -1,14 +1,40 @@
-# Fifth Element - Scene 4 
+# Element 1 - Scene 1
+
+## Babylon Scene Summary 
+
+- A Demonstration of basic shapes, lighting, textures, shadows, and motion
+
+# Element 2 - Scene 2
+
+## Babylon Scene Summary 
+
+- A Demonstration of a 3D environment (mesh manipulation, 360-degree scene with background image, 
+terrain using height map, advanced lighting techniques, constrained camera motion).
+
+# Element 3 - Scene 3
+
+## Babylon Scene Summary 
+
+- A Demonstration of a moveable player mesh incorporating functional animations, player interaction and 
+applied physics.
+
+# Element 4 - Main Menu GUI Scene
+
+## Babylon Scene Summary 
+
+- A Demonstration of a GUI menu system that is responsive to GUI elements with audio involvement. 
+
+# The Fifth Element - Scene 4 
 
 ## Babylon Scene Summary 
 
 ### Scene Basics
 
 - A `Scene` object created with the Babylon engine.
-
 ```code
 export default async function createStartScene3(engine: Engine) {
   const scene = new Scene(engine);
+}
 ```
 - **HemisphericLight** provides ambient illumination.
 ```code
@@ -46,7 +72,7 @@ export default async function createStartScene3(engine: Engine) {
   scene.onBeforeRenderObservable.add(() => {
     scene.meshes.forEach((m) => {
       if ((m.name === "box" || m.name === "ball") && player && player.intersectsMesh(m, false)) {
-        console.log("💥 Game Over!");
+        console.log("Game Over!");
         restartButton.isVisible = true; // show restart button
       }
     });
@@ -109,7 +135,8 @@ player.position = new Vector3(0, 1, 0);
 
 ### GUI Overlay
 
-- GUI created using the Babylon GUI
+- GUI created using the Babylon GUI.
+- GUI overlay was created so that a restart buttun could be added.
 ```code
  // GUI Overlay
   const gui = AdvancedDynamicTexture.CreateFullscreenUI("UI", true, scene);
