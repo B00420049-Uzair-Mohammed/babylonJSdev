@@ -12,7 +12,9 @@
         "motion03build": "tsc && vite build motion03",
     "motion03preview": "vite preview motion03 --host",
         "collision03build": "tsc && vite build collision03",
-    "collision03preview": "vite preview collision03 --host"
+    "collision03preview": "vite preview collision03 --host",
+    "babylonAssessmentbuild": "tsc && vite build babylonAssessment",
+      "babylonAssessmentpreview": "vite preview babylonAssessment --host"
 
   },
   "devDependencies": {
