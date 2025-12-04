@@ -1,138 +1,191 @@
-// import "@babylonjs/core/Debug/debugLayer";
-// import "@babylonjs/inspector";
+//import "@babylonjs/core/Debug/debugLayer";
+//import "@babylonjs/inspector";
+import "@babylonjs/loaders/glTF/2.0";
+import HavokPhysics, { HavokPhysicsWithBindings } from "@babylonjs/havok";
 import {
   Scene,
   ArcRotateCamera,
+  AssetsManager,
   Vector3,
   HemisphericLight,
   MeshBuilder,
   Mesh,
-  StandardMaterial,
-  Color3,
+  Camera,
   Engine,
-  KeyboardEventTypes,
+  HavokPlugin,
+  PhysicsAggregate,
+  PhysicsShapeType,
+  Color3,
+  StandardMaterial,
+  Texture,
 } from "@babylonjs/core";
-import { HavokPlugin, PhysicsAggregate, PhysicsShapeType } from "@babylonjs/core";
-import HavokPhysics from "@babylonjs/havok";
-import { SceneLoader } from "@babylonjs/core/Loading/sceneLoader";
-import "@babylonjs/loaders";
-import {
-  AdvancedDynamicTexture,
-  Button,
-  Control,
-  TextBlock,
-} from "@babylonjs/gui";
 
-export default async function createStartScene3(engine: Engine) {
-  const scene = new Scene(engine);
 
-  // Light
-  new HemisphericLight("light", new Vector3(0, 1, 0), scene);
+function createLight(scene: Scene) {
+  const light = new HemisphericLight("light", new Vector3(0, 1, 0), scene);
+  light.intensity = 0.7;
+  return light;
+}
 
-  // Camera
-  const camera = new ArcRotateCamera(
-    "camera",
-    -Math.PI / 2,
-    Math.PI / 3,
-    20,
-    new Vector3(0, 0, 0),
+function createGround(scene: Scene) {
+  let ground = MeshBuilder.CreateGround(
+    "ground",
+    { width: 16, height: 16 },
+    scene
+  );
+  
+    // Create a static box shape.
+  let groundAggregate = new PhysicsAggregate(ground, PhysicsShapeType.BOX, { mass: 0 }, scene);
+  return groundAggregate;
+}
+
+function createArcRotateCamera(scene: Scene) {
+  let camAlpha = -Math.PI / 2,
+    camBeta = Math.PI / 2.5,
+    camDist = 10,
+    camTarget = new Vector3(0, 0, 0);
+  let camera = new ArcRotateCamera(
+    "camera1",
+    camAlpha,
+    camBeta,
+    camDist,
+    camTarget,
     scene
   );
   camera.attachControl(true);
+  return camera;
+}
 
-  // Enable Havok physics
-  const havokInstance = await HavokPhysics();
-  const havokPlugin = new HavokPlugin(true, havokInstance);
-  scene.enablePhysics(new Vector3(0, -9.81, 0), havokPlugin);
+function createBox1(scene: Scene) {
+  let box = MeshBuilder.CreateBox("box", { width: 1, height: 1 }, scene);
+  box.position.x = -1;
+  box.position.y = 3;
+  box.position.z = 1;
 
-  // Player Dummy
-  let player: Mesh;
-  SceneLoader.ImportMesh("", "./assets/models/men/", "dummy3.babylon", scene, (meshes) => {
-    player = meshes[0] as Mesh;
-    player.position = new Vector3(0, 1, 0);
-    new PhysicsAggregate(player, PhysicsShapeType.CAPSULE, { mass: 1 }, scene);
+  var texture = new StandardMaterial("reflective", scene);
+  texture.ambientTexture = new Texture(
+    "./assets/textures/wood.jpg",
+    scene
+  );
+  texture.diffuseColor = new Color3(1, 1, 1);
+  box.material = texture;
+  let box1Aggregate = new PhysicsAggregate(box, PhysicsShapeType.BOX, {mass: 0.2, restitution:0.1, friction:0.4}, scene);
+  box1Aggregate.body.setCollisionCallbackEnabled(true);
+  return box1Aggregate;
+}
+
+function createBox2(scene: Scene) {
+  let box = MeshBuilder.CreateBox("box", { width: 1, height: 1 }, scene);
+  box.position.x = -0.7;
+  box.position.y = 5;
+  box.position.z = 1;
+
+  var texture = new StandardMaterial("reflective", scene);
+  texture.ambientTexture = new Texture(
+    "./assets/textures/wood.jpg",
+    scene
+  );
+  texture.diffuseColor = new Color3(1, 1, 1);
+  box.material = texture;
+  let box2Aggregate = new PhysicsAggregate(box, PhysicsShapeType.BOX, {mass: 0.2, restitution:0.1, friction:0.4}, scene);
+  box2Aggregate.body.setCollisionCallbackEnabled(true);
+  return box2Aggregate;
+}
+
+function addAssets(scene: Scene) {
+  // add assets here
+  const assetsManager = new AssetsManager(scene);
+  const tree1 = assetsManager.addMeshTask(
+    "tree1 task",
+    "",
+    "./assets/nature/gltf/",
+    "CommonTree_1.gltf"
+  );
+  tree1.onSuccess = function (task) {
+    const root = task.loadedMeshes[0];
+    root.position = new Vector3(3, 0, 2);
+    root.scaling = new Vector3(0.5, 0.5, 0.5);
+    // Ensure all child meshes are visible
+    task.loadedMeshes.forEach((mesh: any) => {
+      mesh.isVisible = true;
+    });
+    //new PhysicsAggregate(root, PhysicsShapeType.MESH, {mass: 0}, scene);
+    
+    // Clone tree1
+    const tree1Clone = root.clone("tree1_clone", null);
+    tree1Clone!.position = new Vector3(0, 0, 5);
+    //new PhysicsAggregate(tree1Clone!, PhysicsShapeType.MESH, {mass: 0}, scene);
+  };
+
+  const tree2 = assetsManager.addMeshTask(
+    "tree1 task",
+    "",
+    "./assets/nature/gltf/",
+    "CommonTree_2.gltf"
+  );
+  tree2.onSuccess = function (task) {
+    task.loadedMeshes[0].position = new Vector3(0, 0, 2);
+    task.loadedMeshes[0].scaling = new Vector3(0.5, 0.5, 0.5);
+    // Clone tree2
+    const tree2Clone = task.loadedMeshes[0].clone("tree2_clone", null);
+    tree2Clone!.position = new Vector3(-3, 0, 5);
+  };
+
+  const tree3 = assetsManager.addMeshTask(
+    "tree1 task",
+    "",
+    "./assets/nature/gltf/",
+    "CommonTree_3.gltf"
+  );
+  tree3.onSuccess = function (task) {
+    task.loadedMeshes[0].position = new Vector3(-3, 0, 2);
+    task.loadedMeshes[0].scaling = new Vector3(0.5, 0.5, 0.5);
+    // Clone tree3
+    const tree3Clone = task.loadedMeshes[0].clone("tree3_clone", null);
+    tree3Clone!.position = new Vector3(3, 0, 5);
+  };
+
+  assetsManager.onTaskErrorObservable.add(function (task) {
+    console.log(
+      "task failed",
+      task.errorObject.message,
+      task.errorObject.exception
+    );
   });
+  return assetsManager;
+}
 
-  // Player Movement
-  const inputMap: { [key: string]: boolean } = {};
-  scene.onKeyboardObservable.add((kbInfo) => {
-    const key = kbInfo.event.key.toLowerCase();
-    inputMap[key] = kbInfo.type === KeyboardEventTypes.KEYDOWN;
-  });
 
-  const moveForce = 5;
-  scene.onBeforeRenderObservable.add(() => {
-    if (!player) return;
-    const body = player.getPhysicsBody();
-    if (!body) return;
-
-    if (inputMap["w"]) body.applyImpulse(new Vector3(0, 0, moveForce), player.getAbsolutePosition());
-    if (inputMap["s"]) body.applyImpulse(new Vector3(0, 0, -moveForce), player.getAbsolutePosition());
-    if (inputMap["a"]) body.applyImpulse(new Vector3(-moveForce, 0, 0), player.getAbsolutePosition());
-    if (inputMap["d"]) body.applyImpulse(new Vector3(moveForce, 0, 0), player.getAbsolutePosition());
-  });
-
-  // Wooden Boxes
-  function spawnBox() {
-    const box = MeshBuilder.CreateBox("box", { size: 2 }, scene);
-    const mat = new StandardMaterial("boxMat", scene);
-    mat.diffuseColor = new Color3(0.6, 0.3, 0.1);
-    box.material = mat;
-    box.position = new Vector3(Math.random() * 20 - 10, 5, 30);
-    new PhysicsAggregate(box, PhysicsShapeType.BOX, { mass: 1 }, scene);
+export default async function createStartScene(engine: Engine) {
+  interface SceneData {
+    scene: Scene;
+    light?: HemisphericLight;
+    ground?: PhysicsAggregate;
+    camera?: Camera;
+    box1?:PhysicsAggregate;
+    box2?:PhysicsAggregate;
   }
 
-  // Balls
-  function spawnBall() {
-    const ball = MeshBuilder.CreateSphere("ball", { diameter: 1.5 }, scene);
-    const mat = new StandardMaterial("ballMat", scene);
-    mat.diffuseColor = Color3.White();
-    ball.material = mat;
-    ball.position = new Vector3(Math.random() * 20 - 10, 5, 30);
-    new PhysicsAggregate(ball, PhysicsShapeType.SPHERE, { mass: 1 }, scene);
-  }
+  let that: SceneData = { scene: new Scene(engine) };
 
-  // Spawning Loop
-  let frameCount = 0;
-  scene.onBeforeRenderObservable.add(() => {
-    frameCount++;
-    if (frameCount % 120 === 0) spawnBox();
-    if (frameCount % 180 === 0) spawnBall();
+  let initializedHavok: any;
+
+  HavokPhysics().then((havok) => {
+    initializedHavok = havok;
   });
 
-  // GUI Overlay
-  const gui = AdvancedDynamicTexture.CreateFullscreenUI("UI", true, scene);
+  const havokInstance: HavokPhysicsWithBindings = await HavokPhysics();
+  const hk: HavokPlugin = new HavokPlugin(true, havokInstance);
+  that.scene.enablePhysics(new Vector3(0, -9.81, 0), hk);
 
-  const restartButton = Button.CreateSimpleButton("restart", "Restart");
-  restartButton.width = "200px";
-  restartButton.height = "60px";
-  restartButton.color = "white";
-  restartButton.background = "red";
-  restartButton.fontSize = "24px";
-  restartButton.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
-  restartButton.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
-  restartButton.isVisible = false; // hidden until game over
+  //that.scene.debugLayer.show();
 
-  restartButton.onPointerUpObservable.add(() => {
-    // Reset scene by clearing and reloading
-    scene.dispose();
-    const newScene = createStartScene3(engine); // reload Scene 3
-    engine.runRenderLoop(async () => {
-      (await newScene).scene.render();
-    });
-  });
-
-  gui.addControl(restartButton);
-
-  // Collision Detection (Game Over)
-  scene.onBeforeRenderObservable.add(() => {
-    scene.meshes.forEach((m) => {
-      if ((m.name === "box" || m.name === "ball") && player && player.intersectsMesh(m, false)) {
-        console.log("💥 Game Over!");
-        restartButton.isVisible = true; // show restart button
-      }
-    });
-  });
-
-  return { scene, camera };
+  that.light = createLight(that.scene);
+  that.ground = createGround(that.scene);
+  that.camera = createArcRotateCamera(that.scene);
+  that.box1 = createBox1(that.scene);
+  that.box2 = createBox2(that.scene);
+  const assetsManager = addAssets(that.scene);
+  assetsManager.load();
+  return that;
 }
