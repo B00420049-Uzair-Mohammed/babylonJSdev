@@ -12,10 +12,15 @@ import {
   Engine,
   KeyboardEventTypes,
 } from "@babylonjs/core";
+
 import { HavokPlugin, PhysicsAggregate, PhysicsShapeType } from "@babylonjs/core";
+
 import HavokPhysics from "@babylonjs/havok";
+
 import { SceneLoader } from "@babylonjs/core/Loading/sceneLoader";
+
 import "@babylonjs/loaders";
+
 import {
   AdvancedDynamicTexture,
   Button,
