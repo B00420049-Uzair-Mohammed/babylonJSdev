@@ -28,8 +28,12 @@ setSceneIndex(0);
 
 export default function setSceneIndex(i: number) {
   eng.runRenderLoop(() => {
+    if (scenes[i]?.scene) {
       scenes[i].scene.render();
+    }
+    if (gui?.scene) {
       gui.scene.autoClear = false;
       gui.scene.render();
+    }
   });
 }

@@ -1,100 +1,143 @@
 // import "@babylonjs/core/Debug/debugLayer";
 // import "@babylonjs/inspector";
 import {
-    Scene,
-    ArcRotateCamera,
-    Vector3,
-    HemisphericLight,
-    MeshBuilder,
-    Mesh,
-    Light,
-    Camera,
-    Engine,
-    Texture,
-    StandardMaterial,
-    Color3
-  } from "@babylonjs/core";
-  
-  
-  function createTube(scene: Scene) {
-    const myPath = [
-      new Vector3(1.85, 0.85, 0.85),
-      new Vector3(1.35, 0.35, 0.35),
-    ];
-  
-    const tube = MeshBuilder.CreateTube(
-      "tube",
-      { path: myPath, radius: 0.4, sideOrientation: Mesh.DOUBLESIDE },
-      scene
-    );
-  
-    var texture = new StandardMaterial("reflective", scene);
-    texture.ambientTexture = new Texture("./assets/textures/wood.jpg", scene);
-    texture.diffuseColor = new Color3(1, 1, 1);
-    tube.material = texture;
-    return tube;
+  Scene,
+  ArcRotateCamera,
+  Vector3,
+  HemisphericLight,
+  MeshBuilder,
+  Mesh,
+  StandardMaterial,
+  Color3,
+  Engine,
+  KeyboardEventTypes,
+} from "@babylonjs/core";
+
+import { HavokPlugin, PhysicsAggregate, PhysicsShapeType } from "@babylonjs/core";
+
+import HavokPhysics from "@babylonjs/havok";
+
+import { SceneLoader } from "@babylonjs/core/Loading/sceneLoader";
+
+import "@babylonjs/loaders";
+
+import {
+  AdvancedDynamicTexture,
+  Button,
+  Control,
+  TextBlock,
+} from "@babylonjs/gui";
+
+export default async function createStartScene3(engine: Engine) {
+  const scene = new Scene(engine);
+
+  // Light
+  new HemisphericLight("light", new Vector3(0, 1, 0), scene);
+
+  // Camera
+  const camera = new ArcRotateCamera(
+    "camera",
+    -Math.PI / 2,
+    Math.PI / 3,
+    20,
+    new Vector3(0, 0, 0),
+    scene
+  );
+  camera.attachControl(true);
+
+  // Enable Havok physics
+  const havokInstance = await HavokPhysics();
+  const havokPlugin = new HavokPlugin(true, havokInstance);
+  scene.enablePhysics(new Vector3(0, -9.81, 0), havokPlugin);
+
+  // Player Dummy
+  let player: Mesh;
+  SceneLoader.ImportMesh("", "./assets/models/men/", "dummy3.babylon", scene, (meshes) => {
+    player = meshes[0] as Mesh;
+    player.position = new Vector3(0, 1, 0);
+    new PhysicsAggregate(player, PhysicsShapeType.CAPSULE, { mass: 1 }, scene);
+  });
+
+  // Player Movement
+  const inputMap: { [key: string]: boolean } = {};
+  scene.onKeyboardObservable.add((kbInfo) => {
+    const key = kbInfo.event.key.toLowerCase();
+    inputMap[key] = kbInfo.type === KeyboardEventTypes.KEYDOWN;
+  });
+
+  const moveForce = 5;
+  scene.onBeforeRenderObservable.add(() => {
+    if (!player) return;
+    const body = player.getPhysicsBody();
+    if (!body) return;
+
+    if (inputMap["w"]) body.applyImpulse(new Vector3(0, 0, moveForce), player.getAbsolutePosition());
+    if (inputMap["s"]) body.applyImpulse(new Vector3(0, 0, -moveForce), player.getAbsolutePosition());
+    if (inputMap["a"]) body.applyImpulse(new Vector3(-moveForce, 0, 0), player.getAbsolutePosition());
+    if (inputMap["d"]) body.applyImpulse(new Vector3(moveForce, 0, 0), player.getAbsolutePosition());
+  });
+
+  // Wooden Boxes
+  function spawnBox() {
+    const box = MeshBuilder.CreateBox("box", { size: 2 }, scene);
+    const mat = new StandardMaterial("boxMat", scene);
+    mat.diffuseColor = new Color3(0.6, 0.3, 0.1);
+    box.material = mat;
+    box.position = new Vector3(Math.random() * 20 - 10, 5, 30);
+    new PhysicsAggregate(box, PhysicsShapeType.BOX, { mass: 1 }, scene);
   }
 
-  
-  function createLight(scene: Scene) {
-    const light = new HemisphericLight("light", new Vector3(0, 1, 0), scene);
-    light.intensity = 0.7;
-    return light;
+  // Balls
+  function spawnBall() {
+    const ball = MeshBuilder.CreateSphere("ball", { diameter: 1.5 }, scene);
+    const mat = new StandardMaterial("ballMat", scene);
+    mat.diffuseColor = Color3.White();
+    ball.material = mat;
+    ball.position = new Vector3(Math.random() * 20 - 10, 5, 30);
+    new PhysicsAggregate(ball, PhysicsShapeType.SPHERE, { mass: 1 }, scene);
   }
-  
-  function createSphere(scene: Scene) {
-    let sphere = MeshBuilder.CreateSphere(
-      "sphere",
-      { diameter: 2, segments: 32 },
-      scene,
-    );
-    sphere.position.y = 1;
-    return sphere;
-  }
-  
-  function createGround(scene: Scene) {
-    let ground = MeshBuilder.CreateGround(
-      "ground",
-      { width: 6, height: 6 },
-      scene,
-    );
-    return ground;
-  }
-  
-  function createArcRotateCamera(scene: Scene) {
-    let camAlpha = -Math.PI / 2,
-      camBeta = Math.PI / 2.5,
-      camDist = 10,
-      camTarget = new Vector3(0, 0, 0);
-    let camera = new ArcRotateCamera(
-      "camera1",
-      camAlpha,
-      camBeta,
-      camDist,
-      camTarget,
-      scene,
-    );
-    camera.attachControl(true);
-    return camera;
-  }
-  
-  export default function createStartScene(engine: Engine) {
-    interface SceneData {
-      scene: Scene;
-      tube?: Mesh;
-      light?: Light;
-      sphere?: Mesh;
-      ground?: Mesh;
-      camera?: Camera;
-    }
-  
-    let that: SceneData = { scene: new Scene(engine) };
-    // that.scene.debugLayer.show();
-  
-    that.tube = createTube(that.scene);
-    that.light = createLight(that.scene);
-    that.sphere = createSphere(that.scene);
-    that.ground = createGround(that.scene);
-    that.camera = createArcRotateCamera(that.scene);
-    return that;
-  }
+
+  // Spawning Loop
+  let frameCount = 0;
+  scene.onBeforeRenderObservable.add(() => {
+    frameCount++;
+    if (frameCount % 120 === 0) spawnBox();
+    if (frameCount % 180 === 0) spawnBall();
+  });
+
+  // GUI Overlay
+  const gui = AdvancedDynamicTexture.CreateFullscreenUI("UI", true, scene);
+
+  const restartButton = Button.CreateSimpleButton("restart", "Restart");
+  restartButton.width = "200px";
+  restartButton.height = "60px";
+  restartButton.color = "white";
+  restartButton.background = "red";
+  restartButton.fontSize = "24px";
+  restartButton.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
+  restartButton.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+  restartButton.isVisible = false; // hidden until game over
+
+  restartButton.onPointerUpObservable.add(() => {
+    // Reset scene by clearing and reloading
+    scene.dispose();
+    const newScene = createStartScene3(engine); // reload Scene 3
+    engine.runRenderLoop(async () => {
+      (await newScene).scene.render();
+    });
+  });
+
+  gui.addControl(restartButton);
+
+  // Collision Detection (Game Over)
+  scene.onBeforeRenderObservable.add(() => {
+    scene.meshes.forEach((m) => {
+      if ((m.name === "box" || m.name === "ball") && player && player.intersectsMesh(m, false)) {
+        console.log("Game Over!");
+        restartButton.isVisible = true; // show restart button
+      }
+    });
+  });
+
+  return { scene, camera };
+}
