@@ -1,143 +1,129 @@
-// import "@babylonjs/core/Debug/debugLayer";
-// import "@babylonjs/inspector";
+import { SceneData } from "./interfaces";
 import {
   Scene,
   ArcRotateCamera,
   Vector3,
-  HemisphericLight,
   MeshBuilder,
   Mesh,
   StandardMaterial,
+  HemisphericLight,
   Color3,
   Engine,
-  KeyboardEventTypes,
+  Texture,
+  CubeTexture,
+  AbstractMesh,
+  ISceneLoaderAsyncResult,
+  Sound,
+  SceneLoader,
 } from "@babylonjs/core";
 
-import { HavokPlugin, PhysicsAggregate, PhysicsShapeType } from "@babylonjs/core";
+// -------------------- ENVIRONMENT --------------------
 
-import HavokPhysics from "@babylonjs/havok";
+function createTerrain(scene: Scene) {
+  const mat = new StandardMaterial("largeGroundMat", scene);
+  mat.diffuseTexture = new Texture("./assets/environments/valleygrass.png", scene);
 
-import { SceneLoader } from "@babylonjs/core/Loading/sceneLoader";
-
-import "@babylonjs/loaders";
-
-import {
-  AdvancedDynamicTexture,
-  Button,
-  Control,
-  TextBlock,
-} from "@babylonjs/gui";
-
-export default async function createStartScene3(engine: Engine) {
-  const scene = new Scene(engine);
-
-  // Light
-  new HemisphericLight("light", new Vector3(0, 1, 0), scene);
-
-  // Camera
-  const camera = new ArcRotateCamera(
-    "camera",
-    -Math.PI / 2,
-    Math.PI / 3,
-    20,
-    new Vector3(0, 0, 0),
+  const ground = MeshBuilder.CreateGroundFromHeightMap(
+    "largeGround",
+    "./assets/environments/villageheightmap.png",
+    { width: 150, height: 150, subdivisions: 20, minHeight: 0, maxHeight: 10 },
     scene
   );
+  ground.material = mat;
+  ground.position.y = -0.01;
+  return ground;
+}
+
+function createGround(scene: Scene) {
+  const mat = new StandardMaterial("groundMaterial", scene);
+  mat.diffuseTexture = new Texture("./assets/environments/villagegreen.png", scene);
+  mat.diffuseTexture.hasAlpha = true;
+  mat.backFaceCulling = false;
+
+  const ground = MeshBuilder.CreateGround("ground", { width: 24, height: 24 }, scene);
+  ground.material = mat;
+  ground.position.y = 0.01;
+  return ground;
+}
+
+function createSky(scene: Scene) {
+  const skybox = MeshBuilder.CreateBox("skyBox", { size: 150 }, scene);
+  const mat = new StandardMaterial("skyBox", scene);
+  mat.backFaceCulling = false;
+  mat.reflectionTexture = new CubeTexture("./assets/textures/skybox/skybox", scene);
+  mat.reflectionTexture.coordinatesMode = Texture.SKYBOX_MODE;
+  mat.diffuseColor = new Color3(0, 0, 0);
+  mat.specularColor = new Color3(0, 0, 0);
+  skybox.material = mat;
+  return skybox;
+}
+
+function createHemisphericLight(scene: Scene) {
+  const light = new HemisphericLight("light", new Vector3(2, 1, 0), scene);
+  light.intensity = 0.8;
+  light.diffuse = new Color3(1, 1, 1);
+  light.specular = new Color3(1, 0.8, 0.8);
+  light.groundColor = new Color3(0, 0.2, 0.7);
+  return light;
+}
+
+function createArcRotateCamera(scene: Scene) {
+  const camera = new ArcRotateCamera("camera1", -Math.PI / 2, Math.PI / 2.5, 25, new Vector3(0, 0, 0), scene);
+  camera.lowerRadiusLimit = 9;
+  camera.upperRadiusLimit = 25;
+  camera.lowerAlphaLimit = 0;
+  camera.upperAlphaLimit = Math.PI * 2;
+  camera.lowerBetaLimit = 0;
+  camera.upperBetaLimit = Math.PI / 2.02;
   camera.attachControl(true);
+  return camera;
+}
 
-  // Enable Havok physics
-  const havokInstance = await HavokPhysics();
-  const havokPlugin = new HavokPlugin(true, havokInstance);
-  scene.enablePhysics(new Vector3(0, -9.81, 0), havokPlugin);
+// -------------------- PLAYER + AUDIO --------------------
 
-  // Player Dummy
-  let player: Mesh;
-  SceneLoader.ImportMesh("", "./assets/models/men/", "dummy3.babylon", scene, (meshes) => {
-    player = meshes[0] as Mesh;
-    player.position = new Vector3(0, 1, 0);
-    new PhysicsAggregate(player, PhysicsShapeType.CAPSULE, { mass: 1 }, scene);
+function importPlayer(scene: Scene, x: number, y: number) {
+  return SceneLoader.ImportMeshAsync("", "./assets/models/men/", "dummy3.babylon", scene).then((result) => {
+    const character: AbstractMesh = result.meshes[0];
+    character.position.set(x, y + 0.1, 0);
+    character.scaling = new Vector3(1, 1, 1);
+    character.rotation = new Vector3(0, 1.5, 0);
+    return result;
   });
+}
 
-  // Player Movement
-  const inputMap: { [key: string]: boolean } = {};
-  scene.onKeyboardObservable.add((kbInfo) => {
-    const key = kbInfo.event.key.toLowerCase();
-    inputMap[key] = kbInfo.type === KeyboardEventTypes.KEYDOWN;
-  });
+function backgroundMusic(scene: Scene): Sound {
+  const music = new Sound("music", "./assets/audio/arcade-kid.mp3", scene, null, { loop: true, autoplay: true });
+  Engine.audioEngine!.useCustomUnlockedButton = true;
+  window.addEventListener("click", () => {
+    if (!Engine.audioEngine!.unlocked) Engine.audioEngine!.unlock();
+  }, { once: true });
+  return music;
+}
 
-  const moveForce = 5;
-  scene.onBeforeRenderObservable.add(() => {
-    if (!player) return;
-    const body = player.getPhysicsBody();
-    if (!body) return;
+// -------------------- MAIN --------------------
 
-    if (inputMap["w"]) body.applyImpulse(new Vector3(0, 0, moveForce), player.getAbsolutePosition());
-    if (inputMap["s"]) body.applyImpulse(new Vector3(0, 0, -moveForce), player.getAbsolutePosition());
-    if (inputMap["a"]) body.applyImpulse(new Vector3(-moveForce, 0, 0), player.getAbsolutePosition());
-    if (inputMap["d"]) body.applyImpulse(new Vector3(moveForce, 0, 0), player.getAbsolutePosition());
-  });
+export default function createStartScene(engine: Engine) {
+  const scene = new Scene(engine);
 
-  // Wooden Boxes
-  function spawnBox() {
-    const box = MeshBuilder.CreateBox("box", { size: 2 }, scene);
-    const mat = new StandardMaterial("boxMat", scene);
-    mat.diffuseColor = new Color3(0.6, 0.3, 0.1);
-    box.material = mat;
-    box.position = new Vector3(Math.random() * 20 - 10, 5, 30);
-    new PhysicsAggregate(box, PhysicsShapeType.BOX, { mass: 1 }, scene);
-  }
+  const ground = createGround(scene);
+  const terrain = createTerrain(scene);
+  const sky = createSky(scene);
+  const lightHemispheric = createHemisphericLight(scene);
+  const camera = createArcRotateCamera(scene);
 
-  // Balls
-  function spawnBall() {
-    const ball = MeshBuilder.CreateSphere("ball", { diameter: 1.5 }, scene);
-    const mat = new StandardMaterial("ballMat", scene);
-    mat.diffuseColor = Color3.White();
-    ball.material = mat;
-    ball.position = new Vector3(Math.random() * 20 - 10, 5, 30);
-    new PhysicsAggregate(ball, PhysicsShapeType.SPHERE, { mass: 1 }, scene);
-  }
+  const player = importPlayer(scene, 0, 0);
+  const audio = backgroundMusic(scene);
 
-  // Spawning Loop
-  let frameCount = 0;
-  scene.onBeforeRenderObservable.add(() => {
-    frameCount++;
-    if (frameCount % 120 === 0) spawnBox();
-    if (frameCount % 180 === 0) spawnBall();
-  });
+  let that: SceneData = {
+    scene,
+    ground,
+    terrain,
+    sky,
+    lightHemispheric,
+    camera,
+    player,
+    audio,
+  };
 
-  // GUI Overlay
-  const gui = AdvancedDynamicTexture.CreateFullscreenUI("UI", true, scene);
-
-  const restartButton = Button.CreateSimpleButton("restart", "Restart");
-  restartButton.width = "200px";
-  restartButton.height = "60px";
-  restartButton.color = "white";
-  restartButton.background = "red";
-  restartButton.fontSize = "24px";
-  restartButton.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
-  restartButton.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
-  restartButton.isVisible = false; // hidden until game over
-
-  restartButton.onPointerUpObservable.add(() => {
-    // Reset scene by clearing and reloading
-    scene.dispose();
-    const newScene = createStartScene3(engine); // reload Scene 3
-    engine.runRenderLoop(async () => {
-      (await newScene).scene.render();
-    });
-  });
-
-  gui.addControl(restartButton);
-
-  // Collision Detection (Game Over)
-  scene.onBeforeRenderObservable.add(() => {
-    scene.meshes.forEach((m) => {
-      if ((m.name === "box" || m.name === "ball") && player && player.intersectsMesh(m, false)) {
-        console.log("Game Over!");
-        restartButton.isVisible = true; // show restart button
-      }
-    });
-  });
-
-  return { scene, camera };
+  return that;
 }

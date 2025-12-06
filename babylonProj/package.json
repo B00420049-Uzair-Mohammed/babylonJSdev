@@ -14,7 +14,9 @@
         "collision03build": "tsc && vite build collision03",
     "collision03preview": "vite preview collision03 --host",
     "babylonAssessmentbuild": "tsc && vite build babylonAssessment",
-      "babylonAssessmentpreview": "vite preview babylonAssessment --host"
+      "babylonAssessmentpreview": "vite preview babylonAssessment --host",
+    "babylonAssessment2build": "tsc && vite build babylonAssessment2",
+      "babylonAssessment2preview": "vite preview babylonAssessment --host"
 
   },
   "devDependencies": {
