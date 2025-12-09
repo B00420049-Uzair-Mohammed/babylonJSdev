@@ -21,5 +21,27 @@
         <p>This bottom section of this page, is designed to provide additional context and detailed information related to the content above. 
             It serves as a space to elaborate on key points, offer explanations, or present supplementary data that enhances the user's understanding. 
             This section can be used to display documentation, instructions, or any relevant notes that support the main topics covered in the page </p> 
+        <h3>Scene 1 - Basic Shapes </h3>
+        <p>The first scene introduces Babylon.js fundamentals with simple geometric shapes, lighting, textures, shadows, and basic motion. It serves as a foundation for understanding how objects are rendered and animated within the engine.</p>
+        <h3>Scene 2 - 3D Environment </h3>
+        <p>The second scene expands into a full 3D environment. It demonstrates mesh manipulation, a 360-degree background image, terrain generated from a height map, and advanced lighting techniques. 
+          Camera motion is constrained to give users a controlled view of the environment</p>
+        <h3>Scene 3 - Interactive Player mesh </h3>
+        <p>The third scene showcases a moveable player mesh with functional animations, user interaction, and applied physics. This highlights how Babylon.js integrates physics engines to create realistic movement and collision responses.</p>
+        <h3>Scene 4 - Main Menu GUI </h3>
+        <p>The fourth scene focuses on GUI design. A responsive menu system is built using Babylon’s GUI framework, complete with interactive elements and audio feedback. 
+          This demonstrates how user interfaces can be layered seamlessly over 3D environments.</p>
+        <h3>Fifth Element - Scene 4 (Game Interaction Demo) </h3>
+        <h4>Scene Basics </h4>
+        <p>A new Babylon Scene object is created with ambient illumination provided by a hemispheric light. An ArcRotateCamera allows users to orbit around the origin and control their perspective interactively.</p>
+        <h4>Physics integration </h4>
+        <p>The Havok physics engine is initialized, enabling gravity and collision detection. When the player collides with dynamic objects, the game ends and a restart option is triggered.</p>
+        <h4>Player Mesh </h4>
+        <p>A dummy character model (dummy3.babylon) is imported and positioned slightly above the ground. The player is controlled via keyboard inputs (WASD) and assigned a physics collider with mass, ensuring realistic interactions with the environment.</p>
+        <h4>Dynamic Objects</h4>
+        <p>Boxes and spheres are periodically spawned into the scene. Boxes are rendered with a wooden texture, while spheres appear as white balls. 
+          Both are given physics bodies and fall into the play area at random positions, creating unpredictable challenges for the player.</p>
+        <h4>GUI Logic </h4>
+        <p>A fullscreen Babylon GUI overlay is added to manage game state. A restart button remains hidden until a collision occurs. Once visible, it allows players to reset and reload the scene, ensuring smooth replayability.</p>
     </section> 
 </html>
