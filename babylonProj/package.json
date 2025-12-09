@@ -16,7 +16,9 @@
     "babylonAssessmentbuild": "tsc && vite build babylonAssessment",
       "babylonAssessmentpreview": "vite preview babylonAssessment --host",
     "babylonAssessment2build": "tsc && vite build babylonAssessment2",
-      "babylonAssessment2preview": "vite preview babylonAssessment --host"
+      "babylonAssessment2preview": "vite preview babylonAssessment --host",
+    "multiplegui02build": "tsc && vite build multiplegui02",
+      "multiplegui02preview": "vite preview multiplegui02 --host"
 
   },
   "devDependencies": {
