@@ -1,84 +1,50 @@
+// src/gui/guiScene.ts
 import {
   Scene,
   ArcRotateCamera,
   Vector3,
-  Camera,
-  Engine
+  Engine,
 } from "@babylonjs/core";
 import * as GUI from "@babylonjs/gui";
-
-//----------------------------------------------------
-
-function createSceneButton(
-  scene: Scene,
-  name: string,
-  label: string,
-  sceneIndex: number,
-  x: string,
-  y: string,
-  advtex: GUI.AdvancedDynamicTexture,
-  setSceneCallback: (i: number) => void
-) {
-  let button = GUI.Button.CreateSimpleButton(name, label);
-  button.left = x;
-  button.top = y;
-  button.width = "80px";
-  button.height = "30px";
-  button.color = "white";
-  button.cornerRadius = 20;
-  button.background = "purple";
-
-  button.onPointerUpObservable.add(() => {
-    console.log(`Menu clicked → switch to scene ${sceneIndex}`);
-    setSceneCallback(sceneIndex);
-  });
-
-  advtex.addControl(button);
-  return button;
-}
-
-function createArcRotateCamera(scene: Scene) {
-  let camAlpha = -Math.PI / 2;
-  let camBeta = Math.PI / 2.5;
-  let camDist = 10;
-  let camTarget = new Vector3(0, 0, 0);
-
-  let camera = new ArcRotateCamera(
-    "camera1",
-    camAlpha,
-    camBeta,
-    camDist,
-    camTarget,
-    scene
-  );
-
-  camera.attachControl(false);
-  return camera;
-}
-
-//----------------------------------------------------
 
 export default function menuScene(
   engine: Engine,
   setSceneCallback: (i: number) => void
 ) {
-  let scene = new Scene(engine);
-  let advancedTexture = GUI.AdvancedDynamicTexture.CreateFullscreenUI("menuUI");
+  const scene = new Scene(engine);
+  const advancedTexture = GUI.AdvancedDynamicTexture.CreateFullscreenUI("menuUI");
 
-  let button1 = createSceneButton(scene, "but1", "1", 0, "-150px", "120px", advancedTexture, setSceneCallback);
-  let button2 = createSceneButton(scene, "but2", "2", 1, "-50px", "120px", advancedTexture, setSceneCallback);
-  let button3 = createSceneButton(scene, "but3", "3", 2, "50px", "120px", advancedTexture, setSceneCallback);
-  let button4 = createSceneButton(scene, "but4", "4", 3, "150px", "120px", advancedTexture, setSceneCallback);
+  function makeButton(label: string, index: number, left: string) {
+    const b = GUI.Button.CreateSimpleButton("btn" + label, label);
+    b.width = "80px";
+    b.height = "36px";
+    b.color = "white";
+    b.background = "#6a3fa0";
+    b.cornerRadius = 12;
+    b.left = left;
+    b.top = "120px";
+    b.onPointerUpObservable.add(() => {
+      setSceneCallback(index);
+    });
+    advancedTexture.addControl(b);
+    return b;
+  }
 
-  let camera = createArcRotateCamera(scene);
+  makeButton("1", 0, "-150px");
+  makeButton("2", 1, "-50px");
+  makeButton("3", 2, "50px");
+  makeButton("4", 3, "150px");
 
-  return {
-    scene,
-    advancedTexture,
-    button1,
-    button2,
-    button3,
-    button4,
-    camera
-  };
+  // small GUI camera so inspector/debugging works if needed
+  const camera = new ArcRotateCamera(
+    "guiCam",
+    -Math.PI / 2,
+    Math.PI / 2.5,
+    5,
+    new Vector3(0, 0, 0),
+    scene
+  );
+  camera.attachControl(false);
+
+  return { scene, advancedTexture, camera };
 }
