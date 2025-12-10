@@ -9,6 +9,7 @@ import {
   MeshBuilder,
   StandardMaterial,
   Texture,
+  Camera,
 } from "@babylonjs/core";
 import * as GUI from "@babylonjs/gui";
 
@@ -16,49 +17,56 @@ import { keyActionManager, keyDownMap, keyDownHeld, getKeyDown } from "./keyActi
 import { bakedAnimations, walk, run, idle, getAnimating, toggleAnimating } from "./bakedAnimations";
 import HavokPhysics from "@babylonjs/havok";
 
-export default async function createRunScene(runScene: SceneData, restartScene: () => void) {
-  // Initialize Havok physics
+export default async function createRunScene(
+  runScene: SceneData,
+  restartScene: () => void
+) {
+
+  // ---------------------------------------------------
+  //  PHYSICS INITIALIZATION
+  // ---------------------------------------------------
   const havokInstance = await HavokPhysics();
   const hk = new HavokPlugin(true, havokInstance);
-  runScene.scene.enablePhysics(new Vector3(0, -9.8, 0), hk);
 
-  // Attach input manager
+  runScene.scene.enablePhysics(new Vector3(0, -9.8, 0), hk);
   keyActionManager(runScene.scene);
 
-  // GUI for restart + game over
-  const advancedTexture = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
+  // ---------------------------------------------------
+  //  GUI OVERLAY SETUP
+  // ---------------------------------------------------
+  const advancedTexture = GUI.AdvancedDynamicTexture.CreateFullscreenUI("runUI");
 
   function showGameOverOverlay() {
-    // Game Over text
-    const textBlock = new GUI.TextBlock();
-    textBlock.text = "GAME OVER";
-    textBlock.color = "white";
-    textBlock.fontSize = 48;
-    textBlock.top = "-100px";
-    advancedTexture.addControl(textBlock);
+    const text = new GUI.TextBlock();
+    text.text = "GAME OVER";
+    text.color = "white";
+    text.fontSize = 48;
+    text.top = "-120px";
+    advancedTexture.addControl(text);
 
-    // Restart button
-    const button = GUI.Button.CreateSimpleButton("restartBtn", "Restart");
-    button.width = "200px";
-    button.height = "60px";
-    button.color = "white";
-    button.background = "red";
-    button.onPointerUpObservable.add(() => {
-      runScene.scene.dispose();
+    const btn = GUI.Button.CreateSimpleButton("restartBtn", "Restart");
+    btn.width = "180px";
+    btn.height = "60px";
+    btn.color = "white";
+    btn.background = "#d9534f";
+    btn.onPointerUpObservable.add(() => {
       advancedTexture.dispose();
       restartScene();
     });
-    advancedTexture.addControl(button);
+
+    advancedTexture.addControl(btn);
   }
 
-  // Add baked animations once player is loaded
+  // ---------------------------------------------------
+  //  LOAD PLAYER + SET UP MOVEMENT + ANIMATION
+  // ---------------------------------------------------
   runScene.player.then((result) => {
     const skeleton: Skeleton = result!.skeletons[0];
-    bakedAnimations(runScene.scene, skeleton);
-
     const character: AbstractMesh = result!.meshes[0];
 
-    // Attach physics aggregate to player
+    bakedAnimations(runScene.scene, skeleton);
+
+    // Physics body for player
     const playerAggregate = new PhysicsAggregate(
       character,
       PhysicsShapeType.CAPSULE,
@@ -69,96 +77,85 @@ export default async function createRunScene(runScene: SceneData, restartScene: 
     let isGrounded = true;
     const jumpForce = new Vector3(0, 5, 0);
 
-    // Spawn falling boxes
+    // ---------------------------------------------------
+    //  FALLING OBJECTS
+    // ---------------------------------------------------
     for (let i = 0; i < 10; i++) {
-      const box = MeshBuilder.CreateBox("fallingBox" + i, { size: 1 }, runScene.scene);
-      box.position = new Vector3(Math.random() * 10 - 5, 15 + i * 5, Math.random() * 10 - 5);
+      const box = MeshBuilder.CreateBox("fallBox_" + i, { size: 1 }, runScene.scene);
+      box.position = new Vector3(Math.random() * 10 - 5, 15 + i * 3, Math.random() * 10 - 5);
 
-      const mat = new StandardMaterial("woodMat", runScene.scene);
+      const mat = new StandardMaterial("wood", runScene.scene);
       mat.diffuseTexture = new Texture("./assets/textures/wood.jpg", runScene.scene);
       box.material = mat;
 
-      const boxAggregate = new PhysicsAggregate(
+      const boxAgg = new PhysicsAggregate(
         box,
         PhysicsShapeType.BOX,
-        { mass: 1, restitution: 0.1, friction: 0.7 },
+        { mass: 1, restitution: 0.2 },
         runScene.scene
       );
 
-      // Collision detection with player
-      boxAggregate.body.setCollisionCallbackEnabled(true);
-      playerAggregate.body.setCollisionCallbackEnabled(true);
-
+      // collision check
       runScene.scene.onAfterPhysicsObservable.add(() => {
-        const distance = Vector3.Distance(box.position, character.position);
-        if (distance < 1.2) {
+        if (Vector3.Distance(box.position, character.position) < 1.2) {
           showGameOverOverlay();
         }
       });
     }
 
+    // ---------------------------------------------------
+    //  MOVEMENT + ANIMATION LOOP
+    // ---------------------------------------------------
     runScene.scene.onBeforeRenderObservable.add(() => {
-      // Toggle audio with M key
+
+      // Toggle audio with M
       if (getKeyDown() === 1 && (keyDownMap["m"] || keyDownMap["M"])) {
         keyDownHeld();
         runScene.audio.isPlaying ? runScene.audio.stop() : runScene.audio.play();
       }
 
-      // Movement via physics
-      let velocity = new Vector3(0, playerAggregate.body.getLinearVelocity().y, 0);
-      let characterMoving = false;
+      let v = new Vector3(0, playerAggregate.body.getLinearVelocity().y, 0);
+      let moving = false;
+      let speed = keyDownMap["Shift"] ? 5 : 2;
 
-      let speed = 2;
-      if (keyDownMap["Shift"]) speed = 5; // sprint
+      if (keyDownMap["w"]) { v.x = -speed; character.rotation.y = 4.71; moving = true; }
+      if (keyDownMap["s"]) { v.x = speed; character.rotation.y = 1.57; moving = true; }
+      if (keyDownMap["a"]) { v.z = -speed; character.rotation.y = 3.14; moving = true; }
+      if (keyDownMap["d"]) { v.z = speed; character.rotation.y = 0; moving = true; }
 
-      if (keyDownMap["w"] || keyDownMap["ArrowUp"]) {
-        velocity.x = -speed;
-        character.rotation.y = (3 * Math.PI) / 2;
-        characterMoving = true;
-      }
-      if (keyDownMap["a"] || keyDownMap["ArrowLeft"]) {
-        velocity.z = -speed;
-        character.rotation.y = Math.PI;
-        characterMoving = true;
-      }
-      if (keyDownMap["s"] || keyDownMap["ArrowDown"]) {
-        velocity.x = speed;
-        character.rotation.y = Math.PI / 2;
-        characterMoving = true;
-      }
-      if (keyDownMap["d"] || keyDownMap["ArrowRight"]) {
-        velocity.z = speed;
-        character.rotation.y = 0;
-        characterMoving = true;
-      }
-
-      // Jump
+      // jump
       if (keyDownMap[" "] && isGrounded) {
         playerAggregate.body.applyImpulse(jumpForce, character.getAbsolutePosition());
         isGrounded = false;
       }
 
-      playerAggregate.body.setLinearVelocity(velocity);
+      playerAggregate.body.setLinearVelocity(v);
 
-      // Animation state
-      if (getKeyDown() && characterMoving) {
-        if (!getAnimating()) {
-          speed > 2 ? run() : walk();
-          toggleAnimating();
-        }
-      } else {
-        if (getAnimating()) {
-          idle();
-          toggleAnimating();
-        }
+      // animation state
+      if (moving && !getAnimating()) {
+        speed > 2 ? run() : walk();
+        toggleAnimating();
+      }
+      if (!moving && getAnimating()) {
+        idle();
+        toggleAnimating();
       }
     });
 
     runScene.scene.onAfterRenderObservable.add(() => {
-      const vel = playerAggregate.body.getLinearVelocity();
-      if (Math.abs(vel.y) < 0.01) {
+      if (Math.abs(playerAggregate.body.getLinearVelocity().y) < 0.01) {
         isGrounded = true;
       }
     });
   });
+
+  // ---------------------------------------------------
+  //  RETURN THE NEW "SCENE 4 OBJECT"
+  // ---------------------------------------------------
+  return {
+    scene: runScene.scene,
+    camera: runScene.camera,
+    player: runScene.player,
+    audio: runScene.audio,
+  };
 }
