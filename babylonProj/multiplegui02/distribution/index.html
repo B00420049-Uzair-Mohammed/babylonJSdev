@@ -2,25 +2,334 @@
 <html> 
   <head> <meta charset="UTF-8" /> 
     <title>JavaScript Games: Programming Fundamentals Assessment</title> 
-    <script type="module" crossorigin src="/assets/index-CGLIV6J5.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-Kkql4ZzK.css">
+    <script type="module" crossorigin src="/assets/index-BOLm0scE.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-DWicShyR.css">
   </head> 
+
   <body> 
-    <style> 
-        body { background-color: #f0f4f8; }
-        h1 { color: #2c3e50; font-weight: 700; text-shadow: 1px 1px 2px #bdc3c7; } 
-        h2 { color: #2980b9; font-weight: 600; text-shadow: 1px 1px 2px #ecf0f1; } 
-        h3 { color: #27ae60; font-weight: 600; text-shadow: 1px 1px 2px #ecf0f1; } 
-        section h2 { color: #8e44ad; font-weight: 700; text-shadow: 1px 1px 2px #dcd6f7; } 
-    </style> 
-        <h1>Uzair Mohammed: My Intro To Using Babylon</h1> 
-        <h2>Banner ID: B00420049</h2> 
-        <h3>Module: JavaScript Games: Programming Fundamentals</h3> 
-    </body> 
-    <section> 
-        <h2>Documentation</h2> 
-        <p>This bottom section of this page, is designed to provide additional context and detailed information related to the content above. 
-            It serves as a space to elaborate on key points, offer explanations, or present supplementary data that enhances the user's understanding. 
-            This section can be used to display documentation, instructions, or any relevant notes that support the main topics covered in the page </p> 
+
+  <h1>Uzair Mohammed: My Intro To Using Babylon</h1> 
+  <h2>Banner ID: B00420049</h2> 
+  <h3>Module: JavaScript Games: Programming Fundamentals</h3> 
+    
+
+  <section> 
+      <h2>Documentation</h2> 
+      <p>This bottom section of this page, is designed to provide additional context and detailed information related to the content above. 
+          It serves as a space to elaborate on key points, offer explanations, or present supplementary data that enhances the user's understanding. 
+          This section can be used to display documentation, instructions, or any relevant notes that support the main topics covered in the page </p> 
+      <h3>Scene 1 - Basic Shapes </h3>
+      <p>The first scene introduces Babylon.js fundamentals using a collection of simple geometric shapes. 
+          These objects demonstrate mesh creation, material assignment, texture mapping, lighting, and camera control. 
+          Each shape is created through helper functions, which keeps the scene file clean and modular.</p>
+      <h4>Ground Plane</h4>
+        <pre><code>
+          // Creates a simple green ground surface
+          const ground = MeshBuilder.CreateGround("ground", { width: 6, height: 6 }, scene);
+          const mat = new StandardMaterial("groundMat", scene);
+          mat.diffuseColor = new Color3(0.1, 1, 0.5);
+          ground.material = mat;
+        </code></pre>
+      <p>
+        This ground serves as the base of the scene. A diffuse color gives it a bright green appearance, 
+        making it easy to see contrast between the other shapes.
+      </p>
+      <h4>Sphere With Emissive Texture</h4>
+        <pre><code>
+          // Sphere using an emissive lava texture
+          const sphere = MeshBuilder.CreateSphere("sphere", { diameter: 1 }, scene);
+          sphere.position.y = 0.5;
+          const mat = new StandardMaterial("sphereMat", scene);
+          mat.emissiveTexture = new Texture("./assets/textures/lavatile.jpg", scene);
+          sphere.material = mat;
+          </code></pre>
+      <p>
+        The sphere demonstrates how to apply emissive textures. This causes the texture to appear bright 
+        regardless of lighting, creating a glowing lava effect.
+      </p>
+
+      <h4>Box With Ambient Texture</h4>
+        <pre><code>
+          // Box with reflectivity texture mapped to ambient channel
+          const box = MeshBuilder.CreateBox("box", { size: 1 }, scene);
+          box.position.set(-1.5, 0.5, 1.5);
+          const mat = new StandardMaterial("boxMat", scene);
+          mat.ambientTexture = new Texture("./assets/textures/reflectivity.jpg", scene);
+          box.material = mat;
+          </code></pre>
+      <p>
+        This box demonstrates ambient textures, which affect how light interacts with the surface. 
+        It is positioned to the left of the sphere to diversify the layout.
+      </p>
+
+  <h4>Cone, Cylinder, Triangle, Capsule, Torus</h4>
+  <p>
+    The remaining primitive shapes follow the same concept: each uses Babylon.js mesh builder utilities, 
+    is placed strategically around the scene, and receives a unique texture or material property. 
+    Together, they create a small geometric playground that teaches foundational Babylon.js rendering concepts.
+  </p>
+
+  <h4>Camera and Lighting Setup</h4>
+  <pre><code>
+    // Hemispheric light for soft ambient illumination
+    const light = new HemisphericLight("light", new Vector3(0, 1, 0), scene);
+
+    // ArcRotateCamera to orbit around the objects
+    const cam = new ArcRotateCamera(
+    "camera",
+    -Math.PI / 2,
+    Math.PI / 2.3,
+    12,
+    new Vector3(0, 0.5, 0),
+    scene
+  );
+  cam.attachControl(scene.getEngine().getRenderingCanvas(), true);
+  </code></pre>
+  <p>
+    The hemispheric light adds soft lighting, while the ArcRotateCamera allows the user to orbit around 
+    the center of the scene, giving full 3D viewing control.
+  </p>
+
+<h3>Scene 2 – 3D Environment</h3>
+<p>
+  Scene 2 expands on the basics by introducing a complete 3D environment built 
+  from terrain, a skybox, instanced houses, vegetation sprites, and improved lighting. 
+  This scene demonstrates Babylon.js world-building techniques used in open-world games.
+</p>
+
+<h4>Terrain Generation</h4>
+<p>
+  The terrain is generated using a heightmap, where pixel brightness controls 
+  elevation. This allows large landscapes without manually modeling geometry.
+</p>
+<pre><code>
+const terrain = MeshBuilder.CreateGroundFromHeightMap(
+  "terrain",
+  "./assets/environments/villageheightmap.png",
+  { width: 150, height: 150, subdivisions: 40, minHeight: 0, maxHeight: 10 }
+);
+</code></pre>
+<p>
+  A diffuse grass texture is assigned to complete the look. This terrain acts as the 
+  foundation of the village environment.
+</p>
+
+<h4>Village Grass Ground</h4>
+<p>
+  A thin grass layer is added on top of the terrain to form a centralized village area.
+  Alpha transparency allows the texture to blend naturally.
+</p>
+<pre><code>
+groundMat.diffuseTexture = new Texture("./assets/environments/villagegreen.png");
+groundMat.diffuseTexture.hasAlpha = true;
+</code></pre>
+
+<h4>Skybox</h4>
+<p>
+  A cube-textured skybox creates a panoramic background. The CubeTexture system loads all six
+  sky faces using a single file prefix.
+</p>
+<pre><code>
+skyMat.reflectionTexture = new CubeTexture(
+  "./assets/environments/skybox/skybox",
+  scene
+);
+skyMat.reflectionTexture.coordinatesMode = Texture.SKYBOX_MODE;
+</code></pre>
+
+<h4>House Construction System</h4>
+<p>
+  Houses are created by merging a textured box with a triangular roof. Two 
+  architectural styles are available, and an "estate mode" places dozens of 
+  houses using efficient instancing.
+</p>
+
+<b>House walls:</b>
+<pre><code>
+const box = MeshBuilder.CreateBox("box", {
+  width: style,
+  height: 1,
+  faceUV,
+  wrap: true
+});
+</code></pre>
+
+<b>Roof:</b>
+<pre><code>
+const roof = MeshBuilder.CreateCylinder("roof", {
+  diameter: 1.3,
+  height: 1.2,
+  tessellation: 3
+});
+roof.rotation.z = Math.PI / 2;
+</code></pre>
+
+<b>Instancing for performance:</b>
+<pre><code>
+const inst = base.createInstance("house" + i);
+inst.position.set(x, 0, z);
+inst.rotation.y = angle;
+</code></pre>
+
+<p>
+  Instanced meshes allow hundreds of houses to be rendered at nearly the same performance 
+  cost as one, making this suitable for real-time environments.
+</p>
+
+<h4>Tree Generation with Sprites</h4>
+<p>
+  Instead of geometry-heavy 3D trees, sprites are used to place hundreds of trees around 
+  the village perimeter. This is a common performance technique in open-world games.
+</p>
+<pre><code>
+const sprites = new SpriteManager("trees", "./src/assets/sprites/tree.png", 2000);
+for (let i = 0; i &lt; 900; i++) {
+  const s = new Sprite("tree", sprites);
+  s.position.x = ...
+}
+</code></pre>
+
+<h4>Camera & Lighting</h4>
+<p>
+  A flexible ArcRotateCamera allows free orbiting of the environment, while a HemisphericLight 
+  gives soft global illumination suitable for outdoor scenes.
+</p>
+<pre><code>
+const cam = new ArcRotateCamera("camera", -Math.PI / 2, Math.PI / 2.5, 25);
+light.intensity = 0.9;
+</code></pre>
+
+<p>
+  Together these elements produce a functional 3D environment demonstrating terrain, 
+  instancing, sprites, skyboxes, and world layout techniques.
+</p>
+
+      <h3>Scene 3 – Interactive Player Mesh</h3> <p> Scene 3 showcases a **moveable player mesh** with functional animations, user input, and basic physics interactions. This scene demonstrates how Babylon.js integrates player control, collision handling, and animation systems to create an interactive environment. </p> <h4>Audio</h4> <pre><code> // Background music with autoplay and click-to-play functionality function backgroundMusic(scene: Scene): Sound { const music = new Sound( "music", "./assets/audio/arcade-kid.mp3", scene, null, { loop: true, autoplay: true } );
+
+window.addEventListener(
+"click",
+() => {
+if (!music.isPlaying) music.play();
+},
+{ once: true }
+);
+
+return music;
+}
+</code></pre>
+
+<p> A looping background track is automatically loaded and starts playing on first user interaction. </p> <h4>Ground Creation</h4> <pre><code> // Ground with wood texture and collision enabled function createGround(scene: Scene) { const mat = new StandardMaterial("groundMaterial", scene); const tex = new Texture("./assets/textures/wood.jpg", scene); tex.uScale = tex.vScale = 4; mat.diffuseTexture = tex;
+
+const ground = MeshBuilder.CreateGround("ground", { width: 15, height: 15, subdivisions: 4 }, scene);
+ground.material = mat;
+ground.checkCollisions = true;
+return ground;
+}
+</code></pre>
+
+<p> The ground is a 15x15 unit plane with a wood texture. Collisions are enabled so the player and other objects interact physically. </p> <h4>Camera Setup</h4> <pre><code> // ArcRotateCamera with zoom limits function createArcRotateCamera(scene: Scene) { const camera = new ArcRotateCamera( "camera1", -Math.PI / 2, Math.PI / 2.5, 15, new Vector3(0, 0, 0), scene );
+
+camera.attachControl(true);
+camera.lowerRadiusLimit = 9;
+camera.upperRadiusLimit = 25;
+
+return camera;
+}
+</code></pre>
+
+<p> The ArcRotateCamera orbits the scene origin and allows zooming between 9 and 25 units, giving full 3D control of the view. </p> <h4>Player Model</h4> <pre><code> // Import player dummy mesh with collision and ellipsoid async function importPlayer(scene: Scene) { const result = await SceneLoader.ImportMeshAsync( "", "./assets/models/men/", "dummy3.babylon", scene );
+
+const character = result.meshes[0];
+character.position.set(0, 0.1, 0);
+character.scaling.set(1, 1, 1);
+character.rotation = new Vector3(0, 1.5, 0);
+character.checkCollisions = true;
+character.ellipsoid = new Vector3(0.5, 1, 0.5);
+
+return result;
+}
+</code></pre>
+
+<p> The player is represented by a dummy mesh slightly above the ground. An ellipsoid collider ensures realistic collision interactions. </p> <h4>Dynamic Obstacles</h4> <pre><code> const box1 = MeshBuilder.CreateBox("box1", { size: 1 }, scene); box1.position.set(-1, 4, 1); box1.checkCollisions = true;
+
+const box2 = MeshBuilder.CreateBox("box2", { size: 1 }, scene);
+box2.position.set(-0.7, 8, 1);
+box2.checkCollisions = true;
+</code></pre>
+
+<p> Two static boxes are added to the scene as simple obstacles demonstrating collision handling for the player. </p> <h4>Player Animations & Input</h4> <pre><code> playerPromise.then((result) => { const character = result.meshes[0]; const skeleton = result.skeletons[0]; bakedAnimations(scene, skeleton); keyActionManager(scene);
+
+scene.onBeforeRenderObservable.add(() => {
+let movement = Vector3.Zero();
+let moving = false;
+
+if (keyDownMap["w"] || keyDownMap["ArrowUp"]) { movement = new Vector3(-0.1, 0, 0); character.rotation.y = 3*Math.PI/2; moving = true; }
+if (keyDownMap["a"] || keyDownMap["ArrowLeft"]) { movement = new Vector3(0, 0, -0.1); character.rotation.y = Math.PI; moving = true; }
+if (keyDownMap["s"] || keyDownMap["ArrowDown"]) { movement = new Vector3(0.1, 0, 0); character.rotation.y = Math.PI/2; moving = true; }
+if (keyDownMap["d"] || keyDownMap["ArrowRight"]) { movement = new Vector3(0, 0, 0.1); character.rotation.y = 0; moving = true; }
+
+character.moveWithCollisions(movement.add(scene.gravity));
+
+if (getKeyDown()) {
+  if (moving && !getAnimating()) { walk(); toggleAnimating(); }
+  if (!moving && getAnimating()) { idle(); toggleAnimating(); }
+}
+
+
+});
+});
+</code></pre>
+
+<p> Keyboard input (`WASD` or arrow keys) controls the player's movement. The player moves with collisions and switches between **walking** and **idle** animations depending on movement state. </p> <h4>Scene Return</h4> <pre><code> return { scene, camera, player: playerPromise, audio, }; </code></pre> <p> The scene object is returned along with the camera, audio, and a promise resolving to the player mesh, making it ready for rendering and interaction. </p> <h4>Summary</h4> <p> Scene 3 demonstrates: </p> <ul> <li>Player movement with collision-enabled ground and obstacles.</li> <li>Keyboard input handling for WASD and arrow keys.</li> <li>Integration of **baked animations** (walk/idle) for realistic movement.</li> <li>Dynamic objects with collision detection.</li> <li>Gravity and basic physics applied to the player mesh.</li> </ul> <h4>Sources</h4> <ul> <li><a href="https://doc.babylonjs.com/">Babylon.js Documentation</a></li> <li><a href="https://doc.babylonjs.com/preparingArtForBabylon/">Preparing Art for Babylon.js</a></li> <li><a href="https://doc.babylonjs.com/toolsAndResources/assetLibraries">Babylon.js Asset Libraries</a></li> </ul>
+      <h3>Scene 4 – Main Menu GUI</h3> <p> Scene 4 demonstrates a **responsive GUI menu system** built using Babylon.js GUI. The menu overlays seamlessly on a 3D scene and responds to user interaction, allowing navigation between scenes. </p> <h4>Scene Setup</h4> <pre><code> import { Scene, ArcRotateCamera, Vector3, Engine } from "@babylonjs/core"; import * as GUI from "@babylonjs/gui";
+
+export default function menuScene(
+engine: Engine,
+setSceneCallback: (i: number) => void
+) {
+const scene = new Scene(engine);
+const advancedTexture = GUI.AdvancedDynamicTexture.CreateFullscreenUI("menuUI");
+</code></pre>
+
+<p> A standard Babylon.js `Scene` is created along with a **fullscreen GUI layer** using `AdvancedDynamicTexture`. This layer hosts all interactive menu buttons. </p> <h4>Button Creation Helper</h4> <pre><code> function makeButton(label: string, index: number, left: string) { const b = GUI.Button.CreateSimpleButton("btn" + label, label); b.width = "80px"; b.height = "36px"; b.color = "white"; b.background = "#6a3fa0"; b.cornerRadius = 12; b.left = left; b.top = "120px"; b.onPointerUpObservable.add(() => { setSceneCallback(index); }); advancedTexture.addControl(b); return b; } </code></pre> <p> A helper function `makeButton` creates styled buttons with labels and positions. Clicking a button triggers `setSceneCallback(index)`, allowing the app to switch to the corresponding scene. </p> <h4>Menu Buttons</h4> <pre><code> makeButton("1", 0, "-150px"); makeButton("2", 1, "-50px"); makeButton("3", 2, "50px"); makeButton("4", 3, "150px"); </code></pre> <p> Four menu buttons are created, each mapped to a scene index. They are evenly spaced horizontally across the menu. </p> <h4>Camera Setup</h4> <pre><code> const camera = new ArcRotateCamera( "guiCam", -Math.PI / 2, Math.PI / 2.5, 5, new Vector3(0, 0, 0), scene ); camera.attachControl(false); </code></pre> <p> A simple ArcRotateCamera is added to the scene for inspector/debugging purposes. It does not respond to user controls in this menu scene. </p> <h4>Scene Return</h4> <pre><code> return { scene, advancedTexture, camera }; </code></pre> <p> The function returns the scene object, the GUI layer (`advancedTexture`), and the camera. This allows the main engine to render the menu and handle interactions. </p> <h4>Summary</h4> <p> Scene 4 demonstrates: </p> <ul> <li>Creating a **fullscreen GUI overlay** for menus.</li> <li>Generating multiple interactive buttons using a helper function.</li> <li>Integrating button clicks to trigger **scene changes** via callbacks.</li> <li>Maintaining a minimal camera for debugging without affecting GUI interaction.</li> <li>Seamless layering of GUI over the 3D engine scene.</li> </ul> <h4>Sources</h4> <ul> <li><a href="https://doc.babylonjs.com/">Babylon.js Documentation</a></li> <li><a href="https://doc.babylonjs.com/features/gui">Babylon.js GUI Documentation</a></li> <li><a href="https://doc.babylonjs.com/toolsAndResources/assetLibraries">Babylon.js Asset Libraries</a></li> </ul>
+      <h3>Scene 4 – Physics Playground with GUI</h3> <p> Scene 4 demonstrates a **physics-enabled environment** with a moveable player, dynamic objects, collision detection, and a GUI overlay with restart functionality. It combines player interactivity, Havok physics, and a simple game loop. </p> <h4>Scene Basics</h4> <pre><code> export default async function createStartScene3(engine: Engine) { const scene = new Scene(engine); } </code></pre> <p> A `Scene` object is created using the Babylon engine to act as the foundation of the interactive environment. </p> <h4>Lighting</h4> <pre><code> // Hemispheric light for ambient illumination new HemisphericLight("light", new Vector3(0, 1, 0), scene); </code></pre> <p> The hemispheric light provides general illumination for the scene, simulating a soft daylight environment. </p> <h4>Camera Setup</h4> <pre><code> // ArcRotateCamera to orbit around the origin const camera = new ArcRotateCamera( "camera", -Math.PI / 2, Math.PI / 3, 20, new Vector3(0, 0, 0), scene ); camera.attachControl(true); </code></pre> <p> The ArcRotateCamera allows the user to orbit around the play area while maintaining control over zoom and rotation. </p> <h4>Physics System</h4> <pre><code> // Enable Havok physics const havokInstance = await HavokPhysics(); const havokPlugin = new HavokPlugin(true, havokInstance); scene.enablePhysics(new Vector3(0, -9.81, 0), havokPlugin); </code></pre> <p> Havok physics is initialized to provide realistic gravity, collisions, and mass-based interactions for the player and dynamic objects. </p> <h4>Collision Detection (Game Over)</h4> <pre><code> // Detect collision between player and obstacles scene.onBeforeRenderObservable.add(() => { scene.meshes.forEach((m) => { if ((m.name === "box" || m.name === "ball") && player && player.intersectsMesh(m, false)) { console.log("Game Over!"); restartButton.isVisible = true; // show restart button } }); }); </code></pre> <p> If the player collides with a dynamic object (box or ball), the game registers a "Game Over" and shows the restart button. </p> <h4>Player Character</h4> <pre><code> // Load dummy player model let player: Mesh; SceneLoader.ImportMesh( "", "./assets/models/men/", "dummy3.babylon", scene, (meshes) => { player = meshes[0] as Mesh; player.position = new Vector3(0, 1, 0); new PhysicsAggregate(player, PhysicsShapeType.CAPSULE, { mass: 1 }, scene); } ); </code></pre> <p> The player is represented by a dummy mesh positioned slightly above the ground. A physics capsule collider is applied to allow interactions with gravity and collisions. </p> <h4>Keyboard Controls</h4> <pre><code> // WASD keyboard controls const inputMap: { [key: string]: boolean } = {}; scene.onKeyboardObservable.add((kbInfo) => { const key = kbInfo.event.key.toLowerCase(); inputMap[key] = kbInfo.type === KeyboardEventTypes.KEYDOWN; }); </code></pre> <p> Player movement is controlled using the WASD keys (or arrow keys), with the input map tracking key states for smooth motion. </p> <h4>Dynamic Objects</h4> <pre><code> // Wooden Boxes function spawnBox() { const box = MeshBuilder.CreateBox("box", { size: 2 }, scene); const mat = new StandardMaterial("boxMat", scene); mat.diffuseColor = new Color3(0.6, 0.3, 0.1); box.material = mat; box.position = new Vector3(Math.random() * 20 - 10, 5, 30); new PhysicsAggregate(box, PhysicsShapeType.BOX, { mass: 1 }, scene); }
+
+// Balls
+function spawnBall() {
+const ball = MeshBuilder.CreateSphere("ball", { diameter: 1.5 }, scene);
+const mat = new StandardMaterial("ballMat", scene);
+mat.diffuseColor = Color3.White();
+ball.material = mat;
+ball.position = new Vector3(Math.random() * 20 - 10, 5, 30);
+new PhysicsAggregate(ball, PhysicsShapeType.SPHERE, { mass: 1 }, scene);
+}
+</code></pre>
+
+<p> Wooden boxes and white spheres are spawned at random x-positions above the play area, falling under gravity and colliding with the player. </p> <h4>GUI Overlay & Restart Button</h4> <pre><code> // Create fullscreen GUI overlay const gui = AdvancedDynamicTexture.CreateFullscreenUI("UI", true, scene);
+
+// Restart button
+const restartButton = Button.CreateSimpleButton("restart", "Restart");
+restartButton.width = "200px";
+restartButton.height = "60px";
+restartButton.color = "white";
+restartButton.background = "red";
+restartButton.fontSize = "24px";
+restartButton.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
+restartButton.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+restartButton.isVisible = false;
+
+restartButton.onPointerUpObservable.add(() => {
+scene.dispose();
+const newScene = createStartScene3(engine); // reload Scene 4
+engine.runRenderLoop(async () => {
+(await newScene).scene.render();
+});
+});
+
+gui.addControl(restartButton);
+</code></pre>
+
+<p> A GUI overlay is added to display a **restart button** when the player collides with a dynamic object. Clicking the button reloads the scene and restarts the game. </p> <h4>Summary</h4> <p> Scene 4 demonstrates: </p> <ul> <li>Player physics and keyboard-controlled movement.</li> <li>Gravity, collisions, and physics-enabled dynamic objects.</li> <li>Havok physics integration.</li> <li>Interactive GUI for game state management (restart button).</li> <li>Randomized spawning of boxes and balls for an interactive playground.</li> </ul> <h4>Sources</h4> <ul> <li><a href="https://derekturner.github.io/Javascript-Games-Fund-25/#/">Javascript Games Fund</a></li> <li><a href="https://doc.babylonjs.com/">Babylon.js Documentation</a></li> <li><a href="https://doc.babylonjs.com/preparingArtForBabylon/">Preparing Art for Babylon.js</a></li> <li><a href="https://doc.babylonjs.com/toolsAndResources/assetLibraries">Babylon.js Asset Libraries</a></li> </ul>
     </section> 
+  </body>
 </html>
