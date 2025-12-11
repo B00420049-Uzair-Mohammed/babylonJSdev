@@ -113,11 +113,7 @@ async function importPlayer(scene: Scene) {
 export default function createStartScene(engine: Engine) {
   const scene = new Scene(engine);
   scene.collisionsEnabled = true;
-
-  // gravity for characters
   scene.gravity = new Vector3(0, -0.3, 0);
-
-  keyActionManager(scene); // IMPORTANT
 
   const audio = backgroundMusic(scene);
   const camera = createArcRotateCamera(scene);
@@ -137,14 +133,16 @@ export default function createStartScene(engine: Engine) {
   playerPromise.then((result) => {
     const character = result.meshes[0];
 
-    // per-frame movement
+    // ✅ FIX: INIT KEYBOARD AFTER MODEL IS READY
+    keyActionManager(scene);
+
     scene.onBeforeRenderObservable.add(() => {
       let movement = Vector3.Zero();
       let moving = false;
 
       if (keyDownMap["w"] || keyDownMap["ArrowUp"]) {
         movement = new Vector3(-0.1, 0, 0);
-        character.rotation.y = (3 * Math.PI) / 2;
+        character.rotation.y = 3 * Math.PI / 2;
         moving = true;
       }
       if (keyDownMap["a"] || keyDownMap["ArrowLeft"]) {
@@ -165,7 +163,6 @@ export default function createStartScene(engine: Engine) {
 
       character.moveWithCollisions(movement.add(scene.gravity));
 
-      // animation handling
       if (getKeyDown()) {
         if (moving && !getAnimating()) {
           walk();
@@ -186,3 +183,4 @@ export default function createStartScene(engine: Engine) {
     audio,
   };
 }
+

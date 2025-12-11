@@ -195,21 +195,28 @@ export default function createStartScene(engine: Engine) {
   const scene = new Scene(engine);
 
   return {
-    scene,
-    ground: createGround(scene),
-    sphere: createSphere(scene),
-    box: createBox(scene),
-    cylinder: createCylinder(scene),
-    cone: createCone(scene),
-    triangle: createTriangle(scene),
-    capsule: createCapsule(scene),
-    torus: createTorus(scene),
-    tube: createTube(scene),
-    extrusion: createExtrusion(scene),
-    octahedron: createOctahedron(scene),
-    plane: createPlane(scene),
-    plane2: createPlane2(scene),
-    light: createLight(scene),
-    camera: createCamera(scene),
-  };
+  scene,
+
+  // --- original objects ---
+  ground: createGround(scene),
+  sphere: createSphere(scene),
+  box: createBox(scene),
+  cylinder: createCylinder(scene),
+  cone: createCone(scene),
+  triangle: createTriangle(scene),
+  capsule: createCapsule(scene),
+  torus: createTorus(scene),
+  tube: createTube(scene),
+  extrusion: createExtrusion(scene),
+  octahedron: createOctahedron(scene),
+
+  // --- required by index.ts ---
+  plane: createPlane(scene),     // OK
+  plane2: createPlane2(scene),   // OK
+  terrain: null,                 // Scene 1 has no terrain → SAFE
+  player: null,                  // Scene 1 has no character → SAFE
+  audio: null,                   // Scene 1 has no music → SAFE
+  light: createLight(scene),
+  camera: createCamera(scene),
+};
 }
