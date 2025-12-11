@@ -26,7 +26,7 @@ function createSphere(scene: Scene) {
   sphere.position.y = 0.5;
 
   const mat = new StandardMaterial("sphereMat", scene);
-  mat.emissiveTexture = new Texture("./src/assets/textures/lavatile.jpg", scene);
+  mat.emissiveTexture = new Texture("./assets/textures/lavatile.jpg", scene);
   sphere.material = mat;
   return sphere;
 }
@@ -36,7 +36,7 @@ function createBox(scene: Scene) {
   box.position.set(-1.5, 0.5, 1.5);
 
   const mat = new StandardMaterial("boxMat", scene);
-  mat.ambientTexture = new Texture("./src/assets/textures/reflectivity.jpg", scene);
+  mat.ambientTexture = new Texture("./assets/textures/reflectivity.png", scene);
   box.material = mat;
   return box;
 }
@@ -46,7 +46,7 @@ function createCylinder(scene: Scene) {
   cylinder.position.set(1.5, 0.5, 1.5);
 
   const mat = new StandardMaterial("cylMat", scene);
-  mat.diffuseTexture = new Texture("./src/assets/textures/wood.jpg", scene);
+  mat.diffuseTexture = new Texture("./assets/textures/wood.jpg", scene);
   cylinder.material = mat;
   return cylinder;
 }
@@ -60,7 +60,7 @@ function createCone(scene: Scene) {
   cone.position.set(1.5, 0.5, -1.5);
 
   const mat = new StandardMaterial("coneMat", scene);
-  mat.ambientTexture = new Texture("./src/assets/textures/reflectivity.jpg", scene);
+  mat.ambientTexture = new Texture("./assets/textures/reflectivity.png", scene);
   cone.material = mat;
   return cone;
 }
@@ -70,7 +70,7 @@ function createTriangle(scene: Scene) {
   tri.position.set(-1.5, 0.5, -1.5);
 
   const mat = new StandardMaterial("triMat", scene);
-  mat.ambientTexture = new Texture("./src/assets/textures/reflectivity.jpg", scene);
+  mat.ambientTexture = new Texture("./assets/textures/reflectivity.png", scene);
   tri.material = mat;
   return tri;
 }
@@ -84,7 +84,7 @@ function createCapsule(scene: Scene) {
   capsule.position.set(-1.5, 1.5, -1.5);
 
   const mat = new StandardMaterial("capMat", scene);
-  mat.ambientTexture = new Texture("./src/assets/textures/reflectivity.jpg", scene);
+  mat.ambientTexture = new Texture("./assets/textures/reflectivity.png", scene);
   mat.diffuseColor = new Color3(1, 0.6, 0.6);
   capsule.material = mat;
   return capsule;
@@ -100,7 +100,7 @@ function createTorus(scene: Scene) {
   torus.position.set(-1.5, 1.5, 1.5);
 
   const mat = new StandardMaterial("torusMat", scene);
-  mat.ambientTexture = new Texture("./src/assets/textures/reflectivity.jpg", scene);
+  mat.ambientTexture = new Texture("./assets/textures/reflectivity.png", scene);
   mat.diffuseColor = new Color3(0.6, 0.6, 1);
   torus.material = mat;
   return torus;
@@ -112,7 +112,7 @@ function createTube(scene: Scene) {
   const tube = MeshBuilder.CreateTube("tube", { path, radius: 0.2 }, scene);
 
   const mat = new StandardMaterial("tubeMat", scene);
-  mat.ambientTexture = new Texture("./src/assets/textures/reflectivity.jpg", scene);
+  mat.ambientTexture = new Texture("./assets/textures/reflectivity.png", scene);
   tube.material = mat;
   return tube;
 }
@@ -133,7 +133,7 @@ function createExtrusion(scene: Scene) {
   );
 
   const mat = new StandardMaterial("extrMat", scene);
-  mat.ambientTexture = new Texture("./src/assets/textures/reflectivity.jpg", scene);
+  mat.ambientTexture = new Texture("./assets/textures/reflectivity.png", scene);
   extr.material = mat;
   return extr;
 }
@@ -143,7 +143,7 @@ function createOctahedron(scene: Scene) {
   oct.position.set(0, 2, 0);
 
   const mat = new StandardMaterial("octMat", scene);
-  mat.ambientTexture = new Texture("./src/assets/textures/reflectivity.jpg", scene);
+  mat.ambientTexture = new Texture("./assets/textures/reflectivity.png", scene);
   oct.material = mat;
   return oct;
 }
@@ -153,7 +153,7 @@ function createPlane(scene: Scene) {
   plane.position.y = 1.8;
 
   const mat = new StandardMaterial("planeMat", scene);
-  mat.ambientTexture = new Texture("./src/assets/textures/wood.jpg", scene);
+  mat.ambientTexture = new Texture("./assets/textures/wood.jpg", scene);
   plane.material = mat;
   return plane;
 }
@@ -164,7 +164,7 @@ function createPlane2(scene: Scene) {
   plane.rotation.y = Math.PI / 2;
 
   const mat = new StandardMaterial("plane2Mat", scene);
-  mat.ambientTexture = new Texture("./src/assets/textures/wood.jpg", scene);
+  mat.ambientTexture = new Texture("./assets/textures/wood.jpg", scene);
   plane.material = mat;
   return plane;
 }

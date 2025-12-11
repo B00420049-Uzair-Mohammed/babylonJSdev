@@ -2,26 +2,10 @@
 <html> 
   <head> <meta charset="UTF-8" /> 
     <title>JavaScript Games: Programming Fundamentals Assessment</title> 
-    <style> 
-        body { background-color: #f0f4f8; }
-        h1 { color: #2c3e50; font-weight: 700; text-shadow: 1px 1px 2px #bdc3c7; } 
-        h2 { color: #2980b9; font-weight: 600; text-shadow: 1px 1px 2px #ecf0f1; } 
-        h3 { color: #27ae60; font-weight: 600; text-shadow: 1px 1px 2px #ecf0f1; } 
-        section h2 { color: #8e44ad; font-weight: 700; text-shadow: 1px 1px 2px #dcd6f7; } 
-
-        #renderCanvas { 
-            width: 100%; 
-            height: 600px; 
-            display: block;
-            outline: none;
-            background: #000;
-          }
-    </style>
   </head> 
 
   <body> 
 
- 
   <h1>Uzair Mohammed: My Intro To Using Babylon</h1> 
   <h2>Banner ID: B00420049</h2> 
   <h3>Module: JavaScript Games: Programming Fundamentals</h3> 
@@ -34,10 +18,191 @@
           It serves as a space to elaborate on key points, offer explanations, or present supplementary data that enhances the user's understanding. 
           This section can be used to display documentation, instructions, or any relevant notes that support the main topics covered in the page </p> 
       <h3>Scene 1 - Basic Shapes </h3>
-      <p>The first scene introduces Babylon.js fundamentals with simple geometric shapes, lighting, textures, shadows, and basic motion. It serves as a foundation for understanding how objects are rendered and animated within the engine.</p>
-      <h3>Scene 2 - 3D Environment </h3>
-      <p>The second scene expands into a full 3D environment. It demonstrates mesh manipulation, a 360-degree background image, terrain generated from a height map, and advanced lighting techniques. 
-        Camera motion is constrained to give users a controlled view of the environment</p>
+      <p>The first scene introduces Babylon.js fundamentals using a collection of simple geometric shapes. 
+          These objects demonstrate mesh creation, material assignment, texture mapping, lighting, and camera control. 
+          Each shape is created through helper functions, which keeps the scene file clean and modular.</p>
+      <h4>Ground Plane</h4>
+        <pre><code>
+          // Creates a simple green ground surface
+          const ground = MeshBuilder.CreateGround("ground", { width: 6, height: 6 }, scene);
+          const mat = new StandardMaterial("groundMat", scene);
+          mat.diffuseColor = new Color3(0.1, 1, 0.5);
+          ground.material = mat;
+        </code></pre>
+      <p>
+        This ground serves as the base of the scene. A diffuse color gives it a bright green appearance, 
+        making it easy to see contrast between the other shapes.
+      </p>
+      <h4>Sphere With Emissive Texture</h4>
+        <pre><code>
+          // Sphere using an emissive lava texture
+          const sphere = MeshBuilder.CreateSphere("sphere", { diameter: 1 }, scene);
+          sphere.position.y = 0.5;
+          const mat = new StandardMaterial("sphereMat", scene);
+          mat.emissiveTexture = new Texture("./assets/textures/lavatile.jpg", scene);
+          sphere.material = mat;
+          </code></pre>
+      <p>
+        The sphere demonstrates how to apply emissive textures. This causes the texture to appear bright 
+        regardless of lighting, creating a glowing lava effect.
+      </p>
+
+      <h4>Box With Ambient Texture</h4>
+        <pre><code>
+          // Box with reflectivity texture mapped to ambient channel
+          const box = MeshBuilder.CreateBox("box", { size: 1 }, scene);
+          box.position.set(-1.5, 0.5, 1.5);
+          const mat = new StandardMaterial("boxMat", scene);
+          mat.ambientTexture = new Texture("./assets/textures/reflectivity.jpg", scene);
+          box.material = mat;
+          </code></pre>
+      <p>
+        This box demonstrates ambient textures, which affect how light interacts with the surface. 
+        It is positioned to the left of the sphere to diversify the layout.
+      </p>
+
+  <h4>Cone, Cylinder, Triangle, Capsule, Torus</h4>
+  <p>
+    The remaining primitive shapes follow the same concept: each uses Babylon.js mesh builder utilities, 
+    is placed strategically around the scene, and receives a unique texture or material property. 
+    Together, they create a small geometric playground that teaches foundational Babylon.js rendering concepts.
+  </p>
+
+  <h4>Camera and Lighting Setup</h4>
+  <pre><code>
+    // Hemispheric light for soft ambient illumination
+    const light = new HemisphericLight("light", new Vector3(0, 1, 0), scene);
+
+    // ArcRotateCamera to orbit around the objects
+    const cam = new ArcRotateCamera(
+    "camera",
+    -Math.PI / 2,
+    Math.PI / 2.3,
+    12,
+    new Vector3(0, 0.5, 0),
+    scene
+  );
+  cam.attachControl(scene.getEngine().getRenderingCanvas(), true);
+  </code></pre>
+  <p>
+    The hemispheric light adds soft lighting, while the ArcRotateCamera allows the user to orbit around 
+    the center of the scene, giving full 3D viewing control.
+  </p>
+
+<h3>Scene 2 – 3D Environment</h3>
+<p>
+  Scene 2 expands on the basics by introducing a complete 3D environment built 
+  from terrain, a skybox, instanced houses, vegetation sprites, and improved lighting. 
+  This scene demonstrates Babylon.js world-building techniques used in open-world games.
+</p>
+
+<h4>Terrain Generation</h4>
+<p>
+  The terrain is generated using a heightmap, where pixel brightness controls 
+  elevation. This allows large landscapes without manually modeling geometry.
+</p>
+<pre><code>
+const terrain = MeshBuilder.CreateGroundFromHeightMap(
+  "terrain",
+  "./assets/environments/villageheightmap.png",
+  { width: 150, height: 150, subdivisions: 40, minHeight: 0, maxHeight: 10 }
+);
+</code></pre>
+<p>
+  A diffuse grass texture is assigned to complete the look. This terrain acts as the 
+  foundation of the village environment.
+</p>
+
+<h4>Village Grass Ground</h4>
+<p>
+  A thin grass layer is added on top of the terrain to form a centralized village area.
+  Alpha transparency allows the texture to blend naturally.
+</p>
+<pre><code>
+groundMat.diffuseTexture = new Texture("./assets/environments/villagegreen.png");
+groundMat.diffuseTexture.hasAlpha = true;
+</code></pre>
+
+<h4>Skybox</h4>
+<p>
+  A cube-textured skybox creates a panoramic background. The CubeTexture system loads all six
+  sky faces using a single file prefix.
+</p>
+<pre><code>
+skyMat.reflectionTexture = new CubeTexture(
+  "./assets/environments/skybox/skybox",
+  scene
+);
+skyMat.reflectionTexture.coordinatesMode = Texture.SKYBOX_MODE;
+</code></pre>
+
+<h4>House Construction System</h4>
+<p>
+  Houses are created by merging a textured box with a triangular roof. Two 
+  architectural styles are available, and an "estate mode" places dozens of 
+  houses using efficient instancing.
+</p>
+
+<b>House walls:</b>
+<pre><code>
+const box = MeshBuilder.CreateBox("box", {
+  width: style,
+  height: 1,
+  faceUV,
+  wrap: true
+});
+</code></pre>
+
+<b>Roof:</b>
+<pre><code>
+const roof = MeshBuilder.CreateCylinder("roof", {
+  diameter: 1.3,
+  height: 1.2,
+  tessellation: 3
+});
+roof.rotation.z = Math.PI / 2;
+</code></pre>
+
+<b>Instancing for performance:</b>
+<pre><code>
+const inst = base.createInstance("house" + i);
+inst.position.set(x, 0, z);
+inst.rotation.y = angle;
+</code></pre>
+
+<p>
+  Instanced meshes allow hundreds of houses to be rendered at nearly the same performance 
+  cost as one, making this suitable for real-time environments.
+</p>
+
+<h4>Tree Generation with Sprites</h4>
+<p>
+  Instead of geometry-heavy 3D trees, sprites are used to place hundreds of trees around 
+  the village perimeter. This is a common performance technique in open-world games.
+</p>
+<pre><code>
+const sprites = new SpriteManager("trees", "./src/assets/sprites/tree.png", 2000);
+for (let i = 0; i &lt; 900; i++) {
+  const s = new Sprite("tree", sprites);
+  s.position.x = ...
+}
+</code></pre>
+
+<h4>Camera & Lighting</h4>
+<p>
+  A flexible ArcRotateCamera allows free orbiting of the environment, while a HemisphericLight 
+  gives soft global illumination suitable for outdoor scenes.
+</p>
+<pre><code>
+const cam = new ArcRotateCamera("camera", -Math.PI / 2, Math.PI / 2.5, 25);
+light.intensity = 0.9;
+</code></pre>
+
+<p>
+  Together these elements produce a functional 3D environment demonstrating terrain, 
+  instancing, sprites, skyboxes, and world layout techniques.
+</p>
+
       <h3>Scene 3 - Interactive Player mesh </h3>
       <p>The third scene showcases a moveable player mesh with functional animations, user interaction, and applied physics. This highlights how Babylon.js integrates physics engines to create realistic movement and collision responses.</p>
       <h3>Scene 4 - Main Menu GUI </h3>
@@ -56,8 +221,5 @@
       <h4>GUI Logic </h4>
       <p>A fullscreen Babylon GUI overlay is added to manage game state. A restart button remains hidden until a collision occurs. Once visible, it allows players to reset and reload the scene, ensuring smooth replayability.</p>
     </section> 
-
-
-
   </body>
 </html>

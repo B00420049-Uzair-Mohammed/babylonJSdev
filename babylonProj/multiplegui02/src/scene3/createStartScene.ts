@@ -6,36 +6,31 @@ import {
   Vector3,
   MeshBuilder,
   StandardMaterial,
-  HemisphericLight,
-  Color3,
   Engine,
   Texture,
   SceneLoader,
-  AbstractMesh,
-  ISceneLoaderAsyncResult,
   Sound,
 } from "@babylonjs/core";
 
-import { walk, idle, getAnimating, toggleAnimating } from "./bakedAnimations";
-import { keyDownMap, getKeyDown, keyDownHeld, keyActionManager } from "./keyActionManager";
+import { bakedAnimations, walk, idle, getAnimating, toggleAnimating } from "./bakedAnimations";
+import { keyDownMap, getKeyDown, keyActionManager } from "./keyActionManager";
 
 // -----------------------------------------------------
 // AUDIO
 // -----------------------------------------------------
 function backgroundMusic(scene: Scene): Sound {
-  const music = new Sound("music", "./assets/audio/arcade-kid.mp3", scene, null, {
-    loop: true,
-    autoplay: true,
-  });
-
-  Engine.audioEngine!.useCustomUnlockedButton = true;
+  const music = new Sound(
+    "music",
+    "./assets/audio/arcade-kid.mp3",
+    scene,
+    null,
+    { loop: true, autoplay: true }
+  );
 
   window.addEventListener(
     "click",
     () => {
-      if (!Engine.audioEngine!.unlocked) {
-        Engine.audioEngine!.unlock();
-      }
+      if (!music.isPlaying) music.play();
     },
     { once: true }
   );
@@ -49,16 +44,10 @@ function backgroundMusic(scene: Scene): Sound {
 function createGround(scene: Scene) {
   const mat = new StandardMaterial("groundMaterial", scene);
   const tex = new Texture("./assets/textures/wood.jpg", scene);
-
   tex.uScale = tex.vScale = 4;
   mat.diffuseTexture = tex;
 
-  const ground = MeshBuilder.CreateGround(
-    "ground",
-    { width: 15, height: 15, subdivisions: 4 },
-    scene
-  );
-
+  const ground = MeshBuilder.CreateGround("ground", { width: 15, height: 15, subdivisions: 4 }, scene);
   ground.material = mat;
   ground.checkCollisions = true;
   return ground;
@@ -99,8 +88,6 @@ async function importPlayer(scene: Scene) {
   character.position.set(0, 0.1, 0);
   character.scaling.set(1, 1, 1);
   character.rotation = new Vector3(0, 1.5, 0);
-
-  // collisions
   character.checkCollisions = true;
   character.ellipsoid = new Vector3(0.5, 1, 0.5);
 
@@ -133,7 +120,15 @@ export default function createStartScene(engine: Engine) {
   playerPromise.then((result) => {
     const character = result.meshes[0];
 
-    // ✅ FIX: INIT KEYBOARD AFTER MODEL IS READY
+    // ✅ Initialize baked animations
+    const skeleton = result.skeletons[0];
+    if (!skeleton) {
+      console.error("No skeleton found in imported mesh!");
+      return;
+    }
+    bakedAnimations(scene, skeleton);
+
+    // ✅ Initialize keyboard input after model is ready
     keyActionManager(scene);
 
     scene.onBeforeRenderObservable.add(() => {
@@ -183,4 +178,3 @@ export default function createStartScene(engine: Engine) {
     audio,
   };
 }
-

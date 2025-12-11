@@ -23,11 +23,11 @@ import {
 
 function createTerrain(scene: Scene) {
   const mat = new StandardMaterial("terrainMat", scene);
-  mat.diffuseTexture = new Texture("./src/assets/environments/valleygrass.png", scene);
+  mat.diffuseTexture = new Texture("./assets/environments/valleygrass.png", scene);
 
   const terrain = MeshBuilder.CreateGroundFromHeightMap(
     "terrain",
-    "./src/assets/environments/villageheightmap.png",
+    "./assets/environments/villageheightmap.png",
     {
       width: 150,
       height: 150,
@@ -50,7 +50,7 @@ function createTerrain(scene: Scene) {
 
 function createGround(scene: Scene) {
   const groundMat = new StandardMaterial("groundMat", scene);
-  groundMat.diffuseTexture = new Texture("./src/assets/environments/villagegreen.png", scene);
+  groundMat.diffuseTexture = new Texture("./assets/environments/villagegreen.png", scene);
   groundMat.diffuseTexture.hasAlpha = true;
   groundMat.backFaceCulling = false;
 
@@ -72,7 +72,7 @@ function createSky(scene: Scene) {
 
   // FIX: use cube texture prefix, not a single file
   skyMat.reflectionTexture = new CubeTexture(
-    "./src/assets/environments/skybox/skybox",
+    "./assets/environments/skybox/skybox",
     scene
   );
 
