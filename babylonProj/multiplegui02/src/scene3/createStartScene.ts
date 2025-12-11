@@ -1,3 +1,5 @@
+// createStartScene.ts (FIXED + CLEANED + MATCHES OTHER SCENES)
+
 import {
   Scene,
   ArcRotateCamera,
@@ -12,23 +14,22 @@ import {
   AbstractMesh,
   ISceneLoaderAsyncResult,
   Sound,
-  Mesh,
 } from "@babylonjs/core";
 
-// --- external helpers for animation state ---
 import { walk, idle, getAnimating, toggleAnimating } from "./bakedAnimations";
-import { keyDownMap, getKeyDown, keyDownHeld } from "./keyActionManager";
+import { keyDownMap, getKeyDown, keyDownHeld, keyActionManager } from "./keyActionManager";
 
-// ------------------ AUDIO ------------------
+// -----------------------------------------------------
+// AUDIO
+// -----------------------------------------------------
 function backgroundMusic(scene: Scene): Sound {
-  let music = new Sound("music", "./assets/audio/arcade-kid.mp3", scene, null, {
+  const music = new Sound("music", "./assets/audio/arcade-kid.mp3", scene, null, {
     loop: true,
     autoplay: true,
   });
 
   Engine.audioEngine!.useCustomUnlockedButton = true;
 
-  // Unlock audio on first user interaction.
   window.addEventListener(
     "click",
     () => {
@@ -38,171 +39,150 @@ function backgroundMusic(scene: Scene): Sound {
     },
     { once: true }
   );
+
   return music;
 }
 
-// ------------------ GROUND ------------------
+// -----------------------------------------------------
+// GROUND
+// -----------------------------------------------------
 function createGround(scene: Scene) {
-  const groundMaterial = new StandardMaterial("groundMaterial");
-  const groundTexture = new Texture("./assets/textures/wood.jpg");
-  groundTexture.uScale = 4.0;
-  groundTexture.vScale = 4.0;
-  groundMaterial.diffuseTexture = groundTexture;
-  groundMaterial.diffuseTexture.hasAlpha = true;
-  groundMaterial.backFaceCulling = false;
+  const mat = new StandardMaterial("groundMaterial", scene);
+  const tex = new Texture("./assets/textures/wood.jpg", scene);
 
-  let ground = MeshBuilder.CreateGround(
+  tex.uScale = tex.vScale = 4;
+  mat.diffuseTexture = tex;
+
+  const ground = MeshBuilder.CreateGround(
     "ground",
     { width: 15, height: 15, subdivisions: 4 },
     scene
   );
-  ground.material = groundMaterial;
-  ground.checkCollisions = true; // enable collisions
+
+  ground.material = mat;
+  ground.checkCollisions = true;
   return ground;
 }
 
-// ------------------ LIGHT ------------------
-function createHemisphericLight(scene: Scene) {
-  const light = new HemisphericLight("light", new Vector3(2, 1, 0), scene);
-  light.intensity = 0.7;
-  light.diffuse = new Color3(1, 1, 1);
-  light.specular = new Color3(1, 0.8, 0.8);
-  light.groundColor = new Color3(0, 0.2, 0.7);
-  return light;
-}
-
-// ------------------ CAMERA ------------------
+// -----------------------------------------------------
+// CAMERA
+// -----------------------------------------------------
 function createArcRotateCamera(scene: Scene) {
-  let camAlpha = -Math.PI / 2,
-    camBeta = Math.PI / 2.5,
-    camDist = 15,
-    camTarget = new Vector3(0, 0, 0);
-  let camera = new ArcRotateCamera(
+  const camera = new ArcRotateCamera(
     "camera1",
-    camAlpha,
-    camBeta,
-    camDist,
-    camTarget,
+    -Math.PI / 2,
+    Math.PI / 2.5,
+    15,
+    new Vector3(0, 0, 0),
     scene
   );
-  camera.lowerRadiusLimit = 9;
-  camera.upperRadiusLimit = 25;
-  camera.lowerAlphaLimit = 0;
-  camera.upperAlphaLimit = Math.PI * 2;
-  camera.lowerBetaLimit = 0;
-  camera.upperBetaLimit = Math.PI / 2.02;
 
   camera.attachControl(true);
-
-  // enable collisions for camera
-  camera.checkCollisions = true;
+  camera.lowerRadiusLimit = 9;
+  camera.upperRadiusLimit = 25;
 
   return camera;
 }
 
-// ------------------ BOXES ------------------
-function createBox1(scene: Scene) {
-  let box = MeshBuilder.CreateBox("box1", { width: 1, height: 1 }, scene);
-  box.position.set(-1, 4, 1);
-
-  var texture = new StandardMaterial("reflective", scene);
-  texture.ambientTexture = new Texture("./assets/textures/reflectivity.png", scene);
-  texture.diffuseColor = new Color3(1, 1, 1);
-  box.material = texture;
-
-  box.checkCollisions = true;
-  return box;
-}
-
-function createBox2(scene: Scene) {
-  let box = MeshBuilder.CreateBox("box2", { width: 1, height: 1 }, scene);
-  box.position.set(-0.7, 8, 1);
-
-  var texture = new StandardMaterial("reflective", scene);
-  texture.ambientTexture = new Texture("./assets/textures/reflectivity.png", scene);
-  texture.diffuseColor = new Color3(1, 1, 1);
-  box.material = texture;
-
-  box.checkCollisions = true;
-  return box;
-}
-
-// ------------------ PLAYER ------------------
-function importMeshA(scene: Scene, x: number, y: number) {
-  let item: Promise<void | ISceneLoaderAsyncResult> = SceneLoader.ImportMeshAsync(
+// -----------------------------------------------------
+// PLAYER MODEL
+// -----------------------------------------------------
+async function importPlayer(scene: Scene) {
+  const result = await SceneLoader.ImportMeshAsync(
     "",
     "./assets/models/men/",
     "dummy3.babylon",
     scene
   );
 
-  item.then((result) => {
-    let character: AbstractMesh = result!.meshes[0];
-    character.position.set(x, y + 0.1, 0);
-    character.scaling = new Vector3(1, 1, 1);
-    character.rotation = new Vector3(0, 1.5, 0);
+  const character = result.meshes[0];
+  character.position.set(0, 0.1, 0);
+  character.scaling.set(1, 1, 1);
+  character.rotation = new Vector3(0, 1.5, 0);
 
-    // enable collisions
-    character.checkCollisions = true;
-    character.ellipsoid = new Vector3(0.5, 1, 0.5);
-  });
+  // collisions
+  character.checkCollisions = true;
+  character.ellipsoid = new Vector3(0.5, 1, 0.5);
 
-  return item;
+  return result;
 }
 
-// ------------------ MAIN SCENE ------------------
+// -----------------------------------------------------
+// MAIN SCENE 3
+// -----------------------------------------------------
 export default function createStartScene(engine: Engine) {
-  let scene = new Scene(engine);
-  scene.collisionsEnabled = true; // global collisions
+  const scene = new Scene(engine);
+  scene.collisionsEnabled = true;
 
-  let audio = backgroundMusic(scene);
-  let lightHemispheric = createHemisphericLight(scene);
-  let camera = createArcRotateCamera(scene);
-  let box1 = createBox1(scene);
-  let box2 = createBox2(scene);
-  let player = importMeshA(scene, 0, 0);
-  let ground = createGround(scene);
+  // gravity for characters
+  scene.gravity = new Vector3(0, -0.3, 0);
 
-  // --- Character control + animation loop ---
-  scene.onBeforeRenderObservable.add(() => {
-    player.then((result) => {
-      let character = result!.meshes[0];
-      let moveVector = Vector3.Zero();
-      let characterMoving = false;
+  keyActionManager(scene); // IMPORTANT
+
+  const audio = backgroundMusic(scene);
+  const camera = createArcRotateCamera(scene);
+  const ground = createGround(scene);
+
+  const box1 = MeshBuilder.CreateBox("box1", { size: 1 }, scene);
+  box1.position.set(-1, 4, 1);
+  box1.checkCollisions = true;
+
+  const box2 = MeshBuilder.CreateBox("box2", { size: 1 }, scene);
+  box2.position.set(-0.7, 8, 1);
+  box2.checkCollisions = true;
+
+  // load player once
+  const playerPromise = importPlayer(scene);
+
+  playerPromise.then((result) => {
+    const character = result.meshes[0];
+
+    // per-frame movement
+    scene.onBeforeRenderObservable.add(() => {
+      let movement = Vector3.Zero();
+      let moving = false;
 
       if (keyDownMap["w"] || keyDownMap["ArrowUp"]) {
-        moveVector = new Vector3(-0.1, 0, 0);
+        movement = new Vector3(-0.1, 0, 0);
         character.rotation.y = (3 * Math.PI) / 2;
-        characterMoving = true;
+        moving = true;
       }
       if (keyDownMap["a"] || keyDownMap["ArrowLeft"]) {
-        moveVector = new Vector3(0, 0, -0.1);
+        movement = new Vector3(0, 0, -0.1);
         character.rotation.y = Math.PI;
-        characterMoving = true;
+        moving = true;
       }
       if (keyDownMap["s"] || keyDownMap["ArrowDown"]) {
-        moveVector = new Vector3(0.1, 0, 0);
+        movement = new Vector3(0.1, 0, 0);
         character.rotation.y = Math.PI / 2;
-        characterMoving = true;
+        moving = true;
       }
       if (keyDownMap["d"] || keyDownMap["ArrowRight"]) {
-        moveVector = new Vector3(0, 0, 0.1);
+        movement = new Vector3(0, 0, 0.1);
         character.rotation.y = 0;
-        characterMoving = true;
+        moving = true;
       }
 
-      // move with collisions
-      character.moveWithCollisions(moveVector);
+      character.moveWithCollisions(movement.add(scene.gravity));
 
-      // animation state
-      if (getKeyDown() && character) {
-        if (characterMoving) {
+      // animation handling
+      if (getKeyDown()) {
+        if (moving && !getAnimating()) {
           walk();
-        } else {
+          toggleAnimating();
+        }
+        if (!moving && getAnimating()) {
           idle();
+          toggleAnimating();
         }
       }
     });
   });
-  return { scene: scene, player: player, audio: audio };
+
+  return {
+    scene,
+    camera,
+    player: playerPromise,
+    audio,
+  };
 }
