@@ -9,7 +9,11 @@ export default {
           ]
         }
       },
-    optimizeDeps: { exclude: ["@babylonjs/havok"] }
+    optimizeDeps: { exclude: ["@babylonjs/havok"] },
+    
+    build: {
+    outDir: "docs"
+  }
 }
  
 
