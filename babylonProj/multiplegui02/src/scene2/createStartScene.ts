@@ -93,13 +93,13 @@ function createBox(style: number) {
   const faceUV: Vector4[] = [];
 
   if (style === 1) {
-    mat.diffuseTexture = new Texture("./src/assets/textures/cubehouse.png");
+    mat.diffuseTexture = new Texture("./assets/textures/cubehouse.png");
     faceUV[0] = new Vector4(0.5, 0.0, 0.75, 1.0);
     faceUV[1] = new Vector4(0.0, 0.0, 0.25, 1.0);
     faceUV[2] = new Vector4(0.25, 0, 0.5, 1.0);
     faceUV[3] = new Vector4(0.75, 0, 1.0, 1.0);
   } else {
-    mat.diffuseTexture = new Texture("./src/assets/textures/semihouse.png");
+    mat.diffuseTexture = new Texture("./assets/textures/semihouse.png");
     faceUV[0] = new Vector4(0.6, 0.0, 1.0, 1.0);
     faceUV[1] = new Vector4(0.0, 0.0, 0.4, 1.0);
     faceUV[2] = new Vector4(0.4, 0, 0.6, 1.0);
@@ -131,7 +131,7 @@ function createRoof(style: number) {
   roof.position.y = 1.22;
 
   const mat = new StandardMaterial("roofMat");
-  mat.diffuseTexture = new Texture("./src/assets/textures/roof.jpg");
+  mat.diffuseTexture = new Texture("./assets/textures/roof.jpg");
   roof.material = mat;
 
   return roof;
@@ -198,7 +198,7 @@ function createHouses(scene: Scene, style: number) {
 function createTrees(scene: Scene) {
   const sprites = new SpriteManager(
     "trees",
-    "./src/assets/sprites/tree.png",
+    "./assets/sprites/tree.png",
     2000,
     { width: 512, height: 1024 },
     scene
